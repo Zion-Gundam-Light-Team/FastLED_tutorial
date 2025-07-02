@@ -83,11 +83,9 @@ static uint8_t startHue_rainbow2 = 0;
 static uint8_t startHue_rainbow3 = 0;
 static uint8_t startHue_rainbow4 = 0;
 
-
 //-------斧頭燈params------//
 static uint8_t startHue_axe = 0;
 static int currentIndex_axe = 0;
-
 
 //-------儲能燈params------//
 static GunStoringEnergyInstance gunStoringEnergyInstance1 = {
@@ -97,8 +95,7 @@ static GunStoringEnergyInstance gunStoringEnergyInstance1 = {
     .num = 0,
     .j = 0,
     .hue = 0,
-    .shiftCounter = 0
-};
+    .shiftCounter = 0};
 
 //-------旋渦燈params------//
 static TurbineInstance turbineInstance1 = {
@@ -113,8 +110,7 @@ static TurbineInstance turbineInstance1 = {
     .isColor1 = true,
     .hue = 0,
     .saturation = 255,
-    .brightness = 255
-};
+    .brightness = 255};
 
 //-------腳底燈params------//
 static FootplateInstance footplateInstance1 = {
@@ -124,8 +120,7 @@ static FootplateInstance footplateInstance1 = {
     .counter = 0,
     .flashCounter = 0,
     .randomIndex = 0,
-    .isFlashingOn = false
-};
+    .isFlashingOn = false};
 
 //-------呼吸燈params------//
 static uint8_t startHue_breath = 0;
@@ -167,30 +162,10 @@ bool storyMode_1()
         maxBrightness = 50;
         maxBrightness_pwm = 800;
         flashingSpeed = 20;
-        mode1State = MODE_1_EYE;
+        mode1State = MODE_1_START;
         return false;
-    case MODE_1_EYE:
-    {
-        unsigned long currentTime;
-        unsigned long lastUpdate = 0;
-        uint16_t currentBrightness = 0;
-        const uint16_t targetBrightness = 100;
-        const int fadeDuration = 2000;
-        const int fadeSpeed = fadeDuration / targetBrightness; 
-
-        pwmBuffer[0][0] = pwmFadeIn(currentTime, fadeSpeed, targetBrightness, currentBrightness, lastUpdate);
-        if (millis() - startTime_mode1 >= 2000)
-        {
-            maxBrightness = 50;
-            maxBrightness_pwm = 800;
-            flashingSpeed = 50;
-            startTime_mode1 = millis();
-            mode1State = MODE_1_START;
-        }
-        return false;
-    }
     case MODE_1_START:
-        
+
         if (millis() - startTime_mode1 >= 1800)
         {
             maxBrightness = 50;
@@ -203,46 +178,27 @@ bool storyMode_1()
         return false;
     case MODE_1_CONTINUE:
 
-        //PWM 0
-        //Head
         pwmBuffer[0][0] = 100;
-
-        //eyes
         pwmBuffer[0][1] = 5;
-        
-        //chest
         pwmBuffer[0][2] = pwmVent(0, 1, 2, 20, 30, 60, 70, 3000, 150000);
-        
-        //skirt armor
         pwmBuffer[0][3] = pwmBreath(30, 5, 100);
         pwmBuffer[0][4] = pwmVent(1, 1, 2, 150, 200, 300, 350, 3000, 150000);
         pwmBuffer[0][5] = pwmVent(2, 1, 2, 150, 200, 300, 350, 3000, 150000);
         pwmBuffer[0][6] = pwmVent(3, 1, 2, 150, 200, 300, 350, 3000, 150000);
         pwmBuffer[0][7] = pwmVent(4, 1, 2, 150, 200, 300, 350, 3000, 150000);
 
-        //chest 訊號燈
-        pwmBuffer[0][8] = pwmValcanGun(20, 100, flashCount_pwm0[0], isOnArr_pwm0[0], lastUpdateArr_pwm0[0], 3000, 3);
-        pwmBuffer[0][9] = pwmValcanGun(20, 100, flashCount_pwm0[1], isOnArr_pwm0[1], lastUpdateArr_pwm0[1], 3000, 3);
-        pwmBuffer[0][10] = 20;
-        pwmBuffer[0][11] = 20;
-
-        //shoulder
-        pwmBuffer[0][12] = pwmFlashKeep(20, 6, 3000, 10000, lastUpdateArr_pwm0[2]);
-        pwmBuffer[0][13] = pwmFlashKeep(20, 6, 3000, 10000, lastUpdateArr_pwm0[3]);
-        pwmBuffer[0][14] = pwmFlashKeep(20, 6, 3000, 10000, lastUpdateArr_pwm0[4]);
-        pwmBuffer[0][15] = pwmFlashKeep(20, 6, 3000, 10000, lastUpdateArr_pwm0[5]);
-
         turbine(leds_RGB2, NUM_RGB2, &turbineInstance1); // 4 turbine
         turbine(leds_RGB3, NUM_RGB3, &turbineInstance1);
 
-        if (millis() - startTime_mode1 >= 150000){
+        if (millis() - startTime_mode1 >= 150000)
+        {
             mode1State = MODE_1_CONTINUE;
         }
         return false;
 
     case MODE_1_FADEOUT:
         pwmFadeOutAll(pwmBuffer, flashingSpeed, currentBrightness_pwm);
-       
+
         rgb_fadeOut(leds_RGB1, NUM_RGB1, flashingSpeed);
         rgb_fadeOut(leds_RGB2, NUM_RGB2, flashingSpeed);
         rgb_fadeOut(leds_RGB3, NUM_RGB3, flashingSpeed);

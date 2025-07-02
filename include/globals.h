@@ -9,9 +9,9 @@
 
 #define MAX_LEDS 180 // Or whatever your maximum LED count is
 
-#define NUM_RGB1 150
-#define NUM_RGB2 150
-#define NUM_RGB3 150
+#define NUM_RGB1 10
+#define NUM_RGB2 10
+#define NUM_RGB3 10
 
 //------------PWM I2C-------------//
 #define PIN_PWM_SDA 6
@@ -148,21 +148,13 @@ enum STATE_CYBER
 enum STATE_MODE_0
 {
     MODE_0_INIT,
-    MODE_0_EYE,
-    MODE_0_START_FLASH,
-    MODE_0_FLASH,
-    MODE_0_ONE_OVER_FOUR,
-    MODE_0_TWO_OVER_FOUR,
-    MODE_0_THREE_OVER_FOUR,
-    MODE_0_ALL,
-    MODE_0_FADEOUT,
+    MODE_0_MAIN,
     MODE_0_END
 };
 
 enum STATE_MODE_1
 {
     MODE_1_INIT,
-    MODE_1_EYE,
     MODE_1_START,
     MODE_1_CONTINUE,
     MODE_1_FADEOUT,

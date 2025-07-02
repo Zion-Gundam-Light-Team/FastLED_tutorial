@@ -77,6 +77,17 @@ static bool isOn0 = false;
 static bool isOn1 = false;
 static bool isOn2 = false;
 
+//-------水流燈params------//
+static uint8_t blueWaveIndex_RGB1[NUM_RGB1];
+static uint8_t blueWaveIndex_RGB2[NUM_RGB2];
+static uint8_t blueWaveIndex_RGB3[NUM_RGB3];
+static unsigned long lastUpdate_blueWave1 = 0;
+static unsigned long lastUpdate_blueWave2 = 0;
+static unsigned long lastUpdate_blueWave3 = 0;
+static bool blueWaveInit1 = false;
+static bool blueWaveInit2 = false;
+static bool blueWaveInit3 = false;
+
 //-------亮點亂閃params------//
 static bool selected_RGB1[NUM_RGB1] = {false};
 static bool selected_RGB2[NUM_RGB2] = {false};
@@ -102,269 +113,28 @@ uint8_t brightnessLow = 1;
 uint8_t brightnessHigh = 50;
 unsigned long lastUpdate = 0;
 
-//-------炮咀燈params------//
-static GunfireInstance gunfireInstance1 = {
-    .state = GUNFIRE_INIT,
-    .rotationCounter = 0,
-    .idleTimer = 0,
-    .whiteKeepCounter = 0,
-    .rotationSpeed = 0,
-    .fadeInId = 0,
-    .colorTransitionId1 = 0,
-    .colorTransitionId2 = 0,
-    .fadeInParam = 0,
-    .flashParam1 = 0,
-    .flashParam2 = 0,
-    .rotationParam = 0,
-    .colorTransitionPtr = 0,
-    .colorTransitionCounter1 = 0,
-    .colorTransitionCounter2 = 0,
-    .tempColorBuffer = {0, 0, 0},
-    .redChannel = {0, 0, 0, 0},
-    .greenChannel = {0, 0, 0, 0},
-    .blueChannel = {0, 0, 0, 0}};
-
 bool storyMode_0()
 {
     switch (mode0State)
     {
     case MODE_0_INIT:
-        startTime_mode0 = millis();
         rgbOff(leds_RGB1, NUM_RGB1);
-        rgbOff(leds_RGB2, NUM_RGB2);
-        rgbOff(leds_RGB3, NUM_RGB3);
-
         pwmOffAll(pwmBuffer);
-        flashIdleInterval = 1000;
-        currentBrightness = 0;
-        currentBrightness_eye = 0;
-        maxBrightness = 10;
-        flashingSpeed = 300;
-        mode0State = MODE_0_EYE;
+        startTime_mode1 = millis();
+        lastUpdate_blueWave1 = millis();
+        lastUpdate_blueWave2 = millis();
+        lastUpdate_blueWave3 = millis();
+        mode0State = MODE_0_MAIN;
         return false;
-    case MODE_0_EYE:
-        if (millis() - startTime_mode0 >= 2000)
-        {
-            flashingRandomPwm = random8(0, ACTUAL_NUM_PWM);
-            flashingRandomPin = random8(PWM_CHANNEL_0, PWM_CHANNEL_15 + 1);
-            maxBrightness = 10;
-            maxBrightness_pwm = 160;
-            flashingSpeed = 1000;
-            startTime_mode0 = millis();
-            mode0State = MODE_0_START_FLASH;
-        }
-        return false;
-    case MODE_0_START_FLASH:
-
-        static unsigned long lastFlashTime = 0;
-        gunfire(leds_RGB1, NUM_RGB1, &gunfireInstance1);
-        if (millis() - startTime_mode0 >= 10000)
-        {
-            maxBrightness = 10;
-            maxBrightness_pwm = 160;
-            flashingSpeed = 1000;
-            flashingChance = 1;
-            startTime_mode0 = millis();
-            mode0State = MODE_0_FLASH;
-        }
-        return false;
-    case MODE_0_FLASH:
-
-        for (int i = 0; i <= PWM_CHANNEL_15; i++)
-        {
-            tempBuffer = pwmFlashRandomWithChance(
-                minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm0, lastUpdateArr_pwm0, flashingSpeed);
-            memcpy(pwmBuffer[PWM0], tempBuffer, 16 * sizeof(uint16_t));
-        }
-        randomFlashWithGap_multiple(leds_RGB1, NUM_RGB1, CRGB(maxBrightness, maxBrightness, maxBrightness), flashingChance, false, flashingSpeed, lastUpdate_rgb1, inGap1, gapTime);
-        randomFlashWithGap_multiple(leds_RGB2, NUM_RGB2, CRGB(maxBrightness, maxBrightness, maxBrightness), flashingChance, false, flashingSpeed, lastUpdate_rgb2, inGap2, gapTime);
-        randomFlashWithGap_multiple(leds_RGB3, NUM_RGB3, CRGB(maxBrightness, maxBrightness, maxBrightness), flashingChance, false, flashingSpeed, lastUpdate_rgb3, inGap3, gapTime);
-
-        if (millis() - lastMillis >= 2000)
-        {
-            if (maxBrightness <= 60)
-                maxBrightness += 1;
-            if (maxBrightness_pwm <= 960)
-                maxBrightness_pwm += 10;
-            if (flashingSpeed <= 3000)
-                flashingSpeed += 50;
-            if (flashingChance <= 50)
-                flashingChance += 1;
-            lastMillis = millis();
-        }
-        if (millis() - startTime_mode0 >= 26000)
-        {
-            selected_RGB1[NUM_RGB1] = {false};
-            selected_RGB2[NUM_RGB2] = {false};
-            selected_RGB3[NUM_RGB3] = {false};
-
-            for (uint8_t i = 0; i < NUM_RGB1 / 4; i++)
-            {
-                int randomIndex = random(NUM_RGB1);
-                selected_RGB1[randomIndex] = true;
-            }
-            for (uint8_t i = 0; i < NUM_RGB2 / 4; i++)
-            {
-                int randomIndex = random(NUM_RGB2);
-                selected_RGB2[randomIndex] = true;
-            }
-            for (uint8_t i = 0; i < NUM_RGB3 / 4; i++)
-            {
-                int randomIndex = random(NUM_RGB3);
-                selected_RGB3[randomIndex] = true;
-            }
-            rgbOff(leds_RGB1, NUM_RGB1);
-            rgbOff(leds_RGB2, NUM_RGB2);
-            rgbOff(leds_RGB3, NUM_RGB3);
-            maxBrightness = 100;
-            maxBrightness_pwm = 1600;
-            flashingSpeed = 3000;
-            flashingChance = 100;
-            startTime_mode0 = millis();
-            mode0State = MODE_0_ONE_OVER_FOUR;
-        }
-        return false;
-    case MODE_0_ONE_OVER_FOUR:
-        for (int i = 0; i <= PWM_CHANNEL_15; i++)
-        {
-            tempBuffer = pwmFlashRandomWithChance(
-                minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm0, lastUpdateArr_pwm0, flashingSpeed);
-            memcpy(pwmBuffer[PWM0], tempBuffer, 16 * sizeof(uint16_t));
-        }
-        randomLightUp(leds_RGB1, NUM_RGB1, CRGB(maxBrightness, maxBrightness, maxBrightness), 4, selected_RGB1);
-        randomLightUp(leds_RGB2, NUM_RGB2, CRGB(maxBrightness, maxBrightness, maxBrightness), 4, selected_RGB2);
-        randomLightUp(leds_RGB3, NUM_RGB3, CRGB(maxBrightness, maxBrightness, maxBrightness), 4, selected_RGB3);
-
-        if (millis() - startTime_mode0 >= 1000)
-        {
-            selected_RGB1[NUM_RGB1] = {false};
-            selected_RGB2[NUM_RGB2] = {false};
-
-            for (uint8_t i = 0; i < NUM_RGB1 / 2; i++)
-            {
-                int randomIndex = random(NUM_RGB1);
-                selected_RGB1[randomIndex] = true;
-            }
-            for (uint8_t i = 0; i < NUM_RGB2 / 2; i++)
-            {
-                int randomIndex = random(NUM_RGB2);
-                selected_RGB2[randomIndex] = true;
-            }
-            for (uint8_t i = 0; i < NUM_RGB3 / 2; i++)
-            {
-                int randomIndex = random(NUM_RGB3);
-                selected_RGB3[randomIndex] = true;
-            }
-
-            rgbOff(leds_RGB1, NUM_RGB1);
-            rgbOff(leds_RGB2, NUM_RGB2);
-            rgbOff(leds_RGB3, NUM_RGB3);
-
-            maxBrightness = 150;
-            maxBrightness_pwm = 2400;
-            flashingSpeed = 1400;
-            flashingChance = 150;
-            startTime_mode0 = millis();
-            mode0State = MODE_0_TWO_OVER_FOUR;
-        }
-        return false;
-    case MODE_0_TWO_OVER_FOUR:
-        for (int i = 0; i <= PWM_CHANNEL_15; i++)
-        {
-            tempBuffer = pwmFlashRandomWithChance(
-                minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm0, lastUpdateArr_pwm0, flashingSpeed);
-            memcpy(pwmBuffer[PWM0], tempBuffer, 16 * sizeof(uint16_t));
-        }
-        randomLightUp(leds_RGB1, NUM_RGB1, CRGB(maxBrightness, maxBrightness, maxBrightness), 4, selected_RGB1);
-        randomLightUp(leds_RGB2, NUM_RGB2, CRGB(maxBrightness, maxBrightness, maxBrightness), 4, selected_RGB2);
-        randomLightUp(leds_RGB3, NUM_RGB3, CRGB(maxBrightness, maxBrightness, maxBrightness), 4, selected_RGB3);
-
-        if (millis() - startTime_mode0 >= 1000)
-        {
-            selected_RGB1[NUM_RGB1] = {false};
-            selected_RGB2[NUM_RGB2] = {false};
-            selected_RGB3[NUM_RGB3] = {false};
-
-            for (uint8_t i = 0; i < NUM_RGB1 / 4 * 3; i++)
-            {
-                int randomIndex = random(NUM_RGB1);
-                selected_RGB1[randomIndex] = true;
-            }
-            for (uint8_t i = 0; i < NUM_RGB2 / 4 * 3; i++)
-            {
-                int randomIndex = random(NUM_RGB2);
-                selected_RGB2[randomIndex] = true;
-            }
-            for (uint8_t i = 0; i < NUM_RGB3 / 4 * 3; i++)
-            {
-                int randomIndex = random(NUM_RGB3);
-                selected_RGB3[randomIndex] = true;
-            }
-            rgbOff(leds_RGB1, NUM_RGB1);
-            rgbOff(leds_RGB2, NUM_RGB2);
-            rgbOff(leds_RGB3, NUM_RGB3);
-            maxBrightness = 200;
-            maxBrightness_pwm = 3200;
-            flashingSpeed = 3000;
-            flashingChance = 200;
-            startTime_mode0 = millis();
-            mode0State = MODE_0_THREE_OVER_FOUR;
-        }
-        return false;
-    case MODE_0_THREE_OVER_FOUR:
-        for (int i = 0; i <= PWM_CHANNEL_15; i++)
-        {
-            tempBuffer = pwmFlashRandomWithChance(
-                minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm0, lastUpdateArr_pwm0, flashingSpeed);
-            memcpy(pwmBuffer[PWM0], tempBuffer, 16 * sizeof(uint16_t));
-        }
-        randomLightUp(leds_RGB1, NUM_RGB1, CRGB(maxBrightness, maxBrightness, maxBrightness), 4, selected_RGB1);
-        randomLightUp(leds_RGB2, NUM_RGB2, CRGB(maxBrightness, maxBrightness, maxBrightness), 4, selected_RGB2);
-        randomLightUp(leds_RGB3, NUM_RGB3, CRGB(maxBrightness, maxBrightness, maxBrightness), 4, selected_RGB3);
-
-        if (millis() - startTime_mode0 >= 1000)
-        {
-            maxBrightness = 255;
-            maxBrightness_pwm = 4000;
-            startTime_mode0 = millis();
-            mode0State = MODE_0_ALL;
-        }
-        return false;
-    case MODE_0_ALL:
-        pwmOnAll(pwmBuffer, maxBrightness_pwm);
-        rgbOn(leds_RGB1, NUM_RGB1, CRGB(maxBrightness, maxBrightness, maxBrightness));
-        rgbOn(leds_RGB2, NUM_RGB2, CRGB(maxBrightness, maxBrightness, maxBrightness));
-        rgbOn(leds_RGB3, NUM_RGB3, CRGB(maxBrightness, maxBrightness, maxBrightness));
-
-        if (millis() - startTime_mode0 >= 1000)
-        {
-            currentBrightness_pwm = maxBrightness_pwm;
-            currentBrightness = maxBrightness;
-            currentBrightness_eye = maxBrightness_eye;
-            flashingSpeed = 10;
-            startTime_mode0 = millis();
-            mode0State = MODE_0_FADEOUT;
-        }
-        return false;
-    case MODE_0_FADEOUT:
-
-        pwmFadeOutAll(pwmBuffer, flashingSpeed, currentBrightness_pwm);
-        rgb_fadeOut(leds_RGB1, NUM_RGB1, flashingSpeed);
-        rgb_fadeOut(leds_RGB2, NUM_RGB2, flashingSpeed);
-        rgb_fadeOut(leds_RGB3, NUM_RGB3, flashingSpeed);
-
-        startTime_mode0 = millis();
-        mode0State = MODE_0_END;
-
+    case MODE_0_MAIN:
+        paletteFlow(leds_RGB1, blueWaveIndex_RGB1, NUM_RGB1, &lastUpdate_blueWave1, &blueWaveInit1, blue_wave_p, 1);
+        paletteFlow(leds_RGB2, blueWaveIndex_RGB2, NUM_RGB2, &lastUpdate_blueWave2, &blueWaveInit2, blue_wave_p, 1);
+        paletteFlow(leds_RGB3, blueWaveIndex_RGB3, NUM_RGB3, &lastUpdate_blueWave3, &blueWaveInit3, blue_wave_p, 1);
         return false;
     case MODE_0_END:
         rgbOff(leds_RGB1, NUM_RGB1);
-        rgbOff(leds_RGB2, NUM_RGB2);
-        rgbOff(leds_RGB3, NUM_RGB3);
         pwmOffAll(pwmBuffer);
-
-        return millis() - startTime_mode0 >= 10000;
-
+        return millis() - startTime_mode1 >= 10000;
     default:
         return false;
     }
