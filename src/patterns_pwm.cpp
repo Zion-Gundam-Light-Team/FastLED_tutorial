@@ -22,27 +22,7 @@ void initPwm()
         PWM_ADDRESS_2,
         PWM_ADDRESS_3,
         PWM_ADDRESS_4,
-        PWM_ADDRESS_5,
-        PWM_ADDRESS_6,
-        PWM_ADDRESS_7,
-        PWM_ADDRESS_8,
-        PWM_ADDRESS_9,
-        PWM_ADDRESS_10,
-        PWM_ADDRESS_11,
-        PWM_ADDRESS_12,
-        PWM_ADDRESS_13,
-        PWM_ADDRESS_14,
-        PWM_ADDRESS_15,
-        PWM_ADDRESS_16,
-        PWM_ADDRESS_17,
-        PWM_ADDRESS_18,
-        PWM_ADDRESS_19,
-        PWM_ADDRESS_20,
-        PWM_ADDRESS_21,
-        PWM_ADDRESS_22,
-        PWM_ADDRESS_23,
-        PWM_ADDRESS_24,
-        PWM_ADDRESS_25};
+        PWM_ADDRESS_5};
 
     for (int i = 0; i < ACTUAL_NUM_PWM; i++)
     {

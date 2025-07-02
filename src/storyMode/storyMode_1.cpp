@@ -143,7 +143,6 @@ static uint16_t breathDelay = 100;
 static bool selected_RGB1[NUM_RGB1] = {false};
 static bool selected_RGB2[NUM_RGB2] = {false};
 static bool selected_RGB3[NUM_RGB3] = {false};
-static bool selected_RGB4[NUM_RGB4] = {false};
 static unsigned long gapTime = 10000;
 static bool inGap1 = false;
 static bool inGap2 = false;
@@ -160,12 +159,6 @@ bool storyMode_1()
         rgbOff(leds_RGB1, NUM_RGB1);
         rgbOff(leds_RGB2, NUM_RGB2);
         rgbOff(leds_RGB3, NUM_RGB3);
-        rgbOff(leds_RGB13, NUM_RGB13);
-        rgbOff(leds_RGB14, NUM_RGB14);
-        rgbOff(leds_RGB15, NUM_RGB15);
-        rgbOff(leds_RGB16, NUM_RGB16);
-        rgbOff(leds_RGB17, NUM_RGB17);
-        rgbOff(leds_RGB18, NUM_RGB18);
         pwmOffAll(pwmBuffer);
         flashIdleInterval = 1000;
         currentBrightness = 0;
@@ -239,77 +232,8 @@ bool storyMode_1()
         pwmBuffer[0][14] = pwmFlashKeep(20, 6, 3000, 10000, lastUpdateArr_pwm0[4]);
         pwmBuffer[0][15] = pwmFlashKeep(20, 6, 3000, 10000, lastUpdateArr_pwm0[5]);
 
-
-        //PWM1
-        //shoulder
-        pwmBuffer[1][0] = pwmBreath(30, 5, 100); //pwmProgressiveFlash(75, 10, 150000, 1);
-        pwmBuffer[1][1] = pwmBreath(30, 5, 100); //pwmProgressiveFlash(75, 10, 150000, 1);
-        pwmBuffer[1][2] = pwmValcanGun(20, 100, flashCount_pwm1[0], isOnArr_pwm1[0], lastUpdateArr_pwm1[0], 3000, 3);
-        pwmBuffer[1][3] = pwmValcanGun(20, 100, flashCount_pwm1[1], isOnArr_pwm1[1], lastUpdateArr_pwm1[1], 3000, 3);
-        
-        //Hand
-        pwmBuffer[1][4] = pwmBreath(10, 5, 200);
-        pwmBuffer[1][5] = pwmBreath(10, 5, 200);
-
-        //gun body
-        pwmBuffer[1][6] = pwmVent(1, 1, 2, 20, 30, 60, 70, 3000, 150000);
-
-        //foot
-        pwmBuffer[1][7] = pwmValcanGun(20, 100, flashCount_pwm1[2], isOnArr_pwm1[2], lastUpdateArr_pwm1[2], 3000, 3);
-        pwmBuffer[1][8] = pwmValcanGun(20, 100, flashCount_pwm1[3], isOnArr_pwm1[3], lastUpdateArr_pwm1[3], 3000, 3);
-
-        //sword
-        pwmBuffer[1][9] = pwmProgressiveFlash(1000, 10, 150000, 1);
-        
-        //Hand
-        pwmBuffer[1][10] = pwmBreath(20, 5, 100);
-        pwmBuffer[1][11] = pwmBreath(20, 5, 100);
-        
-        //
-        pwmBuffer[1][12] = pwmValcanGun(20, 100, flashCount_pwm1[5], isOnArr_pwm1[5], lastUpdateArr_pwm1[5], 3000, 3);
-        pwmBuffer[1][13] = pwmValcanGun(20, 100, flashCount_pwm1[6], isOnArr_pwm1[6], lastUpdateArr_pwm1[6], 3000, 3);
-        pwmBuffer[1][14] = pwmBreath(30, 5, 100);
-        pwmBuffer[1][15] = pwmBreath(30, 5, 100);
-
-        
-        //PWM2
-        pwmBuffer[2][0] = pwmFlashKeep(20, 6, 3000, 10000, lastUpdateArr_pwm2[0]);
-        pwmBuffer[2][1] = 20;
-        pwmBuffer[2][2] = 20;
-        pwmBuffer[2][3] = pwmBreath(40, 5, 100);
-        pwmBuffer[2][4] = pwmBreath(40, 5, 100);
-        pwmBuffer[2][5] = pwmBreath(40, 5, 100);
-        pwmBuffer[2][6] = pwmVent(1, 1, 2, 20, 30, 60, 70, 3000, 150000);
-        pwmBuffer[2][7] = pwmVent(2, 1, 2, 20, 30, 60, 70, 3000, 150000);        
-        pwmBuffer[2][8] = pwmVent(3, 1, 2, 20, 30, 60, 70, 3000, 150000); 
-        pwmBuffer[2][9] = pwmVent(4, 1, 2, 20, 30, 60, 70, 3000, 150000);
-        pwmBuffer[2][10] = pwmBreath(40, 5, 100);
-        pwmBuffer[2][11] = pwmBreath(40, 5, 100);
-        pwmBuffer[2][12] = pwmBreath(40, 5, 100);
-        pwmBuffer[2][13] = 20;
-        pwmBuffer[2][14] = 20;
-        pwmBuffer[2][15] = pwmFlashKeep(20, 6, 3000, 10000, lastUpdateArr_pwm2[1]);
-
-        //propeller
-        // flashCount_pwm0[0] = {true};
-        // static unsigned long lastUpdateArr_pwm[16] = {0};
-        // pwmBuffer[0][9] =  pwmFlashStop(800, 200, 1000, 3, lastUpdateArr_pwm0[11]); // least value of speed = fastest speed
-        // //pwmBuffer[0][10] =  pwmFlashStop(1600, 500, 4000, 3, lastUpdateArr_pwm[12]);
-
-        // //signal
-
-        // axe(leds_RGB1, NUM_RGB1, &startHue_axe, &currentIndex_axe); // 3 *(2020 strips)
         turbine(leds_RGB2, NUM_RGB2, &turbineInstance1); // 4 turbine
         turbine(leds_RGB3, NUM_RGB3, &turbineInstance1);
-
-        turbine(leds_RGB13, NUM_RGB13, &turbineInstance1);
-        footplate(leds_RGB14, NUM_RGB14, &footplateInstance1);
-        turbine(leds_RGB15, NUM_RGB15, &turbineInstance1);
-        turbine(leds_RGB16, NUM_RGB16, &turbineInstance1);
-
-        shoppingMallLight(leds_RGB17, NUM_RGB17, &currentIndex_breath4, CHSV(30, 255, 255), 150000, 10, &swipeonLastUpdate4, 0, 1, 2, 20, 30, 50, 60, 50000);
-        shoppingMallLight(leds_RGB18, NUM_RGB18, &currentIndex_breath4, CHSV(30, 255, 255), 150000, 10, &swipeonLastUpdate4, 0, 1, 2, 20, 30, 50, 60, 50000);
-
 
         if (millis() - startTime_mode1 >= 150000){
             mode1State = MODE_1_CONTINUE;
@@ -322,28 +246,11 @@ bool storyMode_1()
         rgb_fadeOut(leds_RGB1, NUM_RGB1, flashingSpeed);
         rgb_fadeOut(leds_RGB2, NUM_RGB2, flashingSpeed);
         rgb_fadeOut(leds_RGB3, NUM_RGB3, flashingSpeed);
-        rgb_fadeOut(leds_RGB13, NUM_RGB13, flashingSpeed);
-        rgb_fadeOut(leds_RGB14, NUM_RGB14, flashingSpeed);
-        rgb_fadeOut(leds_RGB15, NUM_RGB15, flashingSpeed);
-        rgb_fadeOut(leds_RGB16, NUM_RGB16, flashingSpeed);
-        rgb_fadeOut(leds_RGB17, NUM_RGB17, flashingSpeed);
-        
-        if (rgb_fadeOut(leds_RGB18, NUM_RGB18, flashingSpeed))
-        {
-            startTime_mode1 = millis();
-            mode1State = MODE_1_END;
-        }
         return false;
     case MODE_1_END:
         rgbOff(leds_RGB1, NUM_RGB1);
         rgbOff(leds_RGB2, NUM_RGB2);
         rgbOff(leds_RGB3, NUM_RGB3);
-        rgbOff(leds_RGB13, NUM_RGB13);
-        rgbOff(leds_RGB14, NUM_RGB14);
-        rgbOff(leds_RGB15, NUM_RGB15);
-        rgbOff(leds_RGB16, NUM_RGB16);
-        rgbOff(leds_RGB17, NUM_RGB17);
-        rgbOff(leds_RGB18, NUM_RGB18);
         pwmOffAll(pwmBuffer);
         return true;
         // return millis() - startTime_mode1 >= 10000;

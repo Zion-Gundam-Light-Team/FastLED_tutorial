@@ -12,13 +12,6 @@
 #define NUM_RGB1 150
 #define NUM_RGB2 150
 #define NUM_RGB3 150
-#define NUM_RGB4 20
-#define NUM_RGB13 4
-#define NUM_RGB14 3
-#define NUM_RGB15 9
-#define NUM_RGB16 9
-#define NUM_RGB17 4
-#define NUM_RGB18 4
 
 //------------PWM I2C-------------//
 #define PIN_PWM_SDA 6
@@ -27,14 +20,6 @@
 #define PIN_RGB1 1
 #define PIN_RGB2 2
 #define PIN_RGB3 3
-#define PIN_RGB4 4
-#define PIN_RGB13 13
-#define PIN_RGB14 14
-#define PIN_RGB15 15
-#define PIN_RGB16 16
-#define PIN_RGB17 17
-#define PIN_RGB18 18
-
 
 //---------------LED--------------//
 #define PIN_LED_5 5
@@ -66,13 +51,6 @@
 extern CRGB leds_RGB1[NUM_RGB1];
 extern CRGB leds_RGB2[NUM_RGB2];
 extern CRGB leds_RGB3[NUM_RGB3];
-extern CRGB leds_RGB4[NUM_RGB4];
-extern CRGB leds_RGB13[NUM_RGB13];
-extern CRGB leds_RGB14[NUM_RGB14];
-extern CRGB leds_RGB15[NUM_RGB15];
-extern CRGB leds_RGB16[NUM_RGB16];
-extern CRGB leds_RGB17[NUM_RGB17];
-extern CRGB leds_RGB18[NUM_RGB18];
 
 extern uint8_t colorIndex_RGB1[NUM_RGB1];
 extern uint8_t colorIndex_RGB2[NUM_RGB2];
@@ -191,26 +169,6 @@ enum STATE_MODE_1
     MODE_1_END
 };
 
-enum STATE_MODE_2
-{
-    MODE_2_INIT,
-    MODE_2_EYE,
-    MODE_2_START,
-    MODE_2_CONTINUE,
-    MODE_2_FADEOUT,
-    MODE_2_END
-};
-
-enum STATE_MODE_3
-{
-    MODE_3_INIT,
-    MODE_3_EYE,
-    MODE_3_START,
-    MODE_3_CONTINUE,
-    MODE_3_FADEOUT,
-    MODE_3_END
-};
-
 enum STATE_MODE_DEMO
 {
     MODE_DEMO_INIT,
@@ -248,8 +206,6 @@ extern STATE_VENT ventState;
 extern STATE_CYBER cyberLight;
 extern STATE_MODE_0 mode0State;
 extern STATE_MODE_1 mode1State;
-extern STATE_MODE_2 mode2State;
-extern STATE_MODE_3 mode3State;
 extern STATE_MODE_DEMO modeDemoState;
 extern STATE_GUNFIRE gunfireState;
 #endif // GLOBALS_H

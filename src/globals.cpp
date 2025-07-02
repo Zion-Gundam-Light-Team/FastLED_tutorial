@@ -4,18 +4,10 @@
 CRGB leds_RGB1[NUM_RGB1];
 CRGB leds_RGB2[NUM_RGB2];
 CRGB leds_RGB3[NUM_RGB3];
-CRGB leds_RGB4[NUM_RGB4];
-CRGB leds_RGB13[NUM_RGB13];
-CRGB leds_RGB14[NUM_RGB14];
-CRGB leds_RGB15[NUM_RGB15];
-CRGB leds_RGB16[NUM_RGB16];
-CRGB leds_RGB17[NUM_RGB17];
-CRGB leds_RGB18[NUM_RGB18];
 
 uint8_t colorIndex_RGB1[NUM_RGB1];
 uint8_t colorIndex_RGB2[NUM_RGB2];
 uint8_t colorIndex_RGB3[NUM_RGB3];
-uint8_t colorIndex_RGB4[NUM_RGB4];
 
 uint8_t currentModeId = 0;
 
@@ -50,7 +42,5 @@ STATE_CYBER cyberLight = CYBER_INIT;
 
 STATE_MODE_0 mode0State = MODE_0_INIT;
 STATE_MODE_1 mode1State = MODE_1_INIT;
-STATE_MODE_2 mode2State = MODE_2_INIT;
-STATE_MODE_3 mode3State = MODE_3_INIT;
 STATE_MODE_DEMO modeDemoState = MODE_DEMO_INIT;
 STATE_GUNFIRE gunfireState = GUNFIRE_INIT;

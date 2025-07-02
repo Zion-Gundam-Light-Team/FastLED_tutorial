@@ -30,14 +30,6 @@ void initFastLED()
     FastLED.addLeds<WS2812B, PIN_RGB1, GRB>(leds_RGB1, NUM_RGB1);
     FastLED.addLeds<WS2812B, PIN_RGB2, GRB>(leds_RGB2, NUM_RGB2);
     FastLED.addLeds<WS2812B, PIN_RGB3, GRB>(leds_RGB3, NUM_RGB3);
-    //FastLED.addLeds<WS2812B, PIN_RGB4, GRB>(leds_RGB4, NUM_RGB4);
-
-    FastLED.addLeds<WS2812B, PIN_RGB13, GRB>(leds_RGB13, NUM_RGB13);
-    FastLED.addLeds<WS2812B, PIN_RGB14, GRB>(leds_RGB14, NUM_RGB14);
-    FastLED.addLeds<WS2812B, PIN_RGB15, GRB>(leds_RGB15, NUM_RGB15);
-    FastLED.addLeds<WS2812B, PIN_RGB16, GRB>(leds_RGB16, NUM_RGB16);
-    FastLED.addLeds<WS2812B, PIN_RGB17, GRB>(leds_RGB17, NUM_RGB17);
-    FastLED.addLeds<WS2812B, PIN_RGB18, GRB>(leds_RGB18, NUM_RGB18);
 
     FastLED.setDither(true);
     FastLED.clear();
@@ -46,9 +38,9 @@ void initFastLED()
 
 void runPattern()
 {
-    runStoryModeDemo();
+    // runStoryModeDemo();
     // runStoryModeAll();
-    //runStoryModeSingle();
+    runStoryModeSingle();
 }
 
 void resetPattern()
