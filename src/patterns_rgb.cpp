@@ -23,24 +23,69 @@ static uint8_t saturation_low[rangeOfVent];
 static uint8_t hue_high[rangeOfVent];
 static uint8_t saturation_high[rangeOfVent];
 
-void comet(CRGB *leds, int NUM_LEDS, CRGB color, uint8_t speed, uint8_t tailRange, uint8_t headRange)
+
+//  comet 用法：
+//  lastPos 的初始值要set做255
+bool comet(CRGB *leds, int NUM_LEDS, CRGB color, uint8_t speed, uint8_t tailRange, uint8_t headRange, uint8_t *lastPos, bool *reachedEnd, bool isLoop)
 {
+    if (*lastPos == 255)
+    {
+        *lastPos = 0;
+        *reachedEnd = false;
+    }
+    if (!isLoop && *lastPos == 254)
+    {
+        fadeToBlackBy(leds, NUM_LEDS, 20);
+        bool allBlack = true;
+        for (int i = 0; i < NUM_LEDS; i++)
+        {
+            if (leds[i].r > 0 || leds[i].g > 0 || leds[i].b > 0)
+            {
+                allBlack = false;
+                break;
+            }
+        }
+        return allBlack;
+    }
     uint8_t pos = map(beat8(speed, 0), 0, 255, 0, NUM_LEDS - 1);
     uint8_t brightness = 255;
-    for (int i = -(int)tailRange; i <= (int)headRange; i++)
+    if (pos >= NUM_LEDS - 2 && *lastPos < NUM_LEDS - 2)
     {
-        if (pos + i >= 0 && pos + i < NUM_LEDS)
+        *reachedEnd = true;
+    }
+    bool completedPass = false;
+    if (*reachedEnd && pos < *lastPos && pos < 5)
+    {
+        completedPass = true;
+        *reachedEnd = false;
+        if (!isLoop)
         {
-            if (i <= 0)
-                brightness = 255 - (abs(i) * (tailRange > 0 ? 200 / tailRange : 0));
-            else
-                brightness = 255 - (i * (headRange > 0 ? 240 / headRange : 0));
-            if (brightness < 5) brightness = 5;  // Minimum brightness
-            leds[pos + i] = color;
-            leds[pos + i].nscale8(brightness);
+            *lastPos = 254;
         }
     }
-    fadeToBlackBy(leds, NUM_LEDS, 20);
+    if (*lastPos != 254)
+    {
+        for (int i = -(int)tailRange; i <= (int)headRange; i++)
+        {
+            if (pos + i >= 0 && pos + i < NUM_LEDS)
+            {
+                if (i <= 0)
+                    brightness = 255 - (abs(i) * (tailRange > 0 ? 200 / tailRange : 0));
+                else
+                    brightness = 255 - (i * (headRange > 0 ? 240 / headRange : 0));
+                if (brightness < 5)
+                    brightness = 5;
+                leds[pos + i] = color;
+                leds[pos + i].nscale8(brightness);
+            }
+        }
+        fadeToBlackBy(leds, NUM_LEDS, 20);
+        if (*lastPos != 254)
+        {
+            *lastPos = pos;
+        }
+    }
+    return completedPass;
 }
 
 void twoSideComet(CRGB *leds, int NUM_LEDS, CRGB color, uint8_t speed, uint8_t diffusionRange)

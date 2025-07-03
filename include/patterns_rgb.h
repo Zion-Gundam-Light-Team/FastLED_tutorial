@@ -101,7 +101,7 @@ void pride(CRGB *leds, int NUM_LEDS);
 void paletteFlow(CRGB *leds, uint8_t *colorIndex, int NUM_LEDS, unsigned long *lastUpdate, bool *initialized, CRGBPalette16 &palette, uint8_t speed);
 
 void randomizeParameters_1(int MIN_FREQ, int MAX_FREQ,int lowerBoundOfMin, int upperBoundOfMin, int lowerBoundOfMax, int upperBoundOfMax);
-void comet(CRGB *leds, int NUM_LEDS, CRGB color, uint8_t speed, uint8_t tailRange, uint8_t headRange);
+bool comet(CRGB *leds, int NUM_LEDS, CRGB color, uint8_t speed, uint8_t tailRange, uint8_t headRange, uint8_t *lastPos, bool *reachedEnd, bool isLoop);
 void twoSideComet(CRGB *leds, int NUM_LEDS, CRGB color, uint8_t speed, uint8_t diffusionRange);
 bool shoppingMallLight(CRGB *leds, int NUM_LEDS, uint8_t *colorIndex, CRGB color, unsigned long duration, int speed, unsigned long *lastUpdate, uint16_t speedDelay,  int MIN_FREQ, int MAX_FREQ, int lowerBoundOfMin, int upperBoundOfMin, int lowerBoundOfMax, int upperBoundOfMax, int intervals);
 bool rgbVent(CRGB *leds, int NUM_LEDS, uint8_t *colorIndex, CRGB color, unsigned long duration, int speed, unsigned long *lastUpdate, uint16_t speedDelay,  int MIN_FREQ, int MAX_FREQ, int lowerBoundOfMin, int upperBoundOfMin, int lowerBoundOfMax, int upperBoundOfMax, int intervals);
