@@ -924,14 +924,12 @@ void axe(CRGB *leds, int NUM_LEDS, AxeInstance *instance)
         // tempLeds[instance->currentIndex] = CRGB::White;
         if (!instance->hold)
         {
-            // instance->whiteLightSpeedCounter++;
-            // if (instance->whiteLightSpeedCounter >= instance->whiteLightSpeed)
-            // {
-            //     instance->whiteLightSpeedCounter = 0;
-            //     instance->currentIndex++;
-            // }
-            comet(tempLeds, NUM_LEDS, CRGB::White, 50, 20, 0);
-            instance->currentIndex++;
+            instance->whiteLightSpeedCounter++;
+            if (instance->whiteLightSpeedCounter >= instance->whiteLightSpeed)
+            {
+                instance->whiteLightSpeedCounter = 0;
+                instance->currentIndex++;
+            }
             if (instance->currentIndex >= NUM_LEDS)
             {
                 instance->hold = true;
