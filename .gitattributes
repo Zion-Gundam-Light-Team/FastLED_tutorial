@@ -1,0 +1,10 @@
+
+# Protect all storymode files from being overwritten during merges
+firmware/shared/src/storymode/* merge=ours
+firmware/shared/include/storymode/* merge=ours
+
+# Allow normal merging for storyModeController and storyMode_dev files
+firmware/shared/src/storymode/storyModeController.cpp merge=union
+firmware/shared/include/storymode/storyModeController.h merge=union
+firmware/shared/src/storymode/storyMode_dev.cpp merge=union
+firmware/shared/include/storymode/storyMode_dev.h merge=union

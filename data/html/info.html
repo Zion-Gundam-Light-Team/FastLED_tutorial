@@ -1,0 +1,35 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 狀態</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="upload-container">
+        <div class="upload-header">
+            <img src="logo.png" alt="Logo" class="logo">
+            <h1>ESP32 狀態</h1>
+            <p>裝置連線資訊</p>
+        </div>
+
+        <div class="info-content">
+            <div class="info-item">
+                <div class="info-label">WiFi名稱</div>
+                <div class="info-value">%device_name%</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">IP位址</div>
+                <div class="info-value">%connected_ip%</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Access Point IP</div>
+                <div class="info-value">%ap_ip%</div>
+            </div>
+        </div>
+    </div>
+
+</html>
