@@ -13,7 +13,7 @@
     <div class="upload-container">
         <div class="upload-header">
             <img src="logo.png" alt="Logo" class="logo">
-            <h1>更新Firmware</h1>
+            <h1>Master韌體更新</h1>
             <p>請上傳新的.bin 檔案</p>
         </div>
 
@@ -63,7 +63,7 @@
                             var percentage = Math.round(per * 100);
                             $('#prg').html('Progress: ' + percentage + '%');
                             $('#bar').css('width', percentage + '%');
-                            
+
                             if (percentage === 100) {
                                 $('.btn').hide();
                                 $('#success').text('成功上傳').show();

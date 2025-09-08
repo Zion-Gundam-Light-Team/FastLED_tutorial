@@ -5,21 +5,26 @@
 #include "../../include/pwmConfig.h"
 #include "../../include/ledController.h"
 #include "../../include/lib/lib_pwm.h"
+#include "../../include/pwmTask.h"
 
 uint16_t pwmBuffer[MAX_NUM_PWM][16] = {0};
 
 void pwmOnAll(uint16_t pwmBuffer[][16], uint16_t brightness)
 {
-    for (int pwmIndex = 0; pwmIndex < ACTUAL_NUM_PWM; pwmIndex++)
-        for (int channel = 0; channel < 16; channel++)
-            pwmBuffer[pwmIndex][channel] = brightness;
+    PWM_UPDATE_SAFE({
+        for (int pwmIndex = 0; pwmIndex < ACTUAL_NUM_PWM; pwmIndex++)
+            for (int channel = 0; channel < 16; channel++)
+                pwmBuffer[pwmIndex][channel] = brightness;
+    });
 }
 
 void pwmOffAll(uint16_t pwmBuffer[][16])
 {
-    for (int pwmIndex = 0; pwmIndex < ACTUAL_NUM_PWM; pwmIndex++)
-        for (int channel = 0; channel < 16; channel++)
-            pwmBuffer[pwmIndex][channel] = 0;
+    PWM_UPDATE_SAFE({
+        for (int pwmIndex = 0; pwmIndex < ACTUAL_NUM_PWM; pwmIndex++)
+            for (int channel = 0; channel < 16; channel++)
+                pwmBuffer[pwmIndex][channel] = 0;
+    });
 }
 
 uint16_t pwmOff()
@@ -35,22 +40,26 @@ uint16_t pwmOn(uint16_t brightness)
 void pwmBreathAll(uint16_t pwmBuffer[][16], int freq, uint16_t brightnessLow, uint16_t brightnessHigh)
 {
     uint16_t breath_brightness = beatsin16(freq, brightnessLow, brightnessHigh);
-    for (int pwmIndex = 0; pwmIndex < ACTUAL_NUM_PWM; pwmIndex++)
-        for (int channel = 0; channel < 16; channel++)
-            pwmBuffer[pwmIndex][channel] = breath_brightness;
+    PWM_UPDATE_SAFE({
+        for (int pwmIndex = 0; pwmIndex < ACTUAL_NUM_PWM; pwmIndex++)
+            for (int channel = 0; channel < 16; channel++)
+                pwmBuffer[pwmIndex][channel] = breath_brightness;
+    });
 }
 
 bool pwmFadeOutAll(uint16_t pwmBuffer[][16], int fadeSpeed, uint16_t &currentBrightness)
 {
     bool allOff = true;
-    for (int pwmIndex = 0; pwmIndex < ACTUAL_NUM_PWM; pwmIndex++)
-    {
-        currentBrightness = (currentBrightness * (255 - fadeSpeed)) / 255;
-        for (int channel = 0; channel < 16; channel++)
-            pwmBuffer[pwmIndex][channel] = currentBrightness;
-        if (currentBrightness != 0)
-            allOff = false;
-    }
+    PWM_UPDATE_SAFE({
+        for (int pwmIndex = 0; pwmIndex < ACTUAL_NUM_PWM; pwmIndex++)
+        {
+            currentBrightness = (currentBrightness * (255 - fadeSpeed)) / 255;
+            for (int channel = 0; channel < 16; channel++)
+                pwmBuffer[pwmIndex][channel] = currentBrightness;
+            if (currentBrightness != 0)
+                allOff = false;
+        }
+    });
     return allOff;
 }
 
@@ -305,11 +314,13 @@ bool randomLightup(
     static int currentSequenceIndex = 0;
     static int currentSlaveIndex = 0;
 
-    for (int i = 0; i < maxNumPwm; i++)
-    {
-        for (int j = 0; j < 16; j++)
-            pwmBuffer[i][j] = 0;
-    }
+    PWM_UPDATE_SAFE({
+        for (int i = 0; i < maxNumPwm; i++)
+        {
+            for (int j = 0; j < 16; j++)
+                pwmBuffer[i][j] = 0;
+        }
+    });
     if (!isFlashing)
     {
         if (millis() - lastFlashTime >= offDuration)
@@ -326,14 +337,18 @@ bool randomLightup(
     }
     if (isFlashing)
     {
-        pwmBuffer[currentPwmIndex][flashingRandomChannel] = pwmFlashRandom(
+        uint16_t flashValue = pwmFlashRandom(
             flashingSpeed,
             minBrightness,
             maxBrightness,
             isOnArr_pwm[currentPwmIndex][flashingRandomChannel],
             lastUpdate_pwm[currentPwmIndex][flashingRandomChannel]);
+        
+        PWM_UPDATE_SAFE({
+            pwmBuffer[currentPwmIndex][flashingRandomChannel] = flashValue;
+        });
 
-        if (pwmBuffer[currentPwmIndex][flashingRandomChannel] == 0)
+        if (flashValue == 0)
         {
             isFlashing = false;
             lastFlashTime = millis();
@@ -348,17 +363,19 @@ bool randomLightup(
 void pwmSequenceBeatSinFade(uint16_t pwmBuffer[][16], int pwmIndex, int channels[], int numChannels, int freq, uint16_t brightnessLow, uint16_t brightnessHigh)
 {
     uint8_t phaseStep = 200 / numChannels;
-    for (int i = 0; i < numChannels; i++)
-    {
-        uint8_t phase = i * phaseStep;
-        uint8_t rawBrightness = beatsin8(freq, 0, 255, 0, phase);
-        uint16_t brightness;
-        if (rawBrightness < 85)
-            brightness = brightnessLow;
-        else
-            brightness = map(rawBrightness, 85, 255, brightnessLow, brightnessHigh);
-        pwmBuffer[pwmIndex][channels[i]] = brightness;
-    }
+    PWM_UPDATE_SAFE({
+        for (int i = 0; i < numChannels; i++)
+        {
+            uint8_t phase = i * phaseStep;
+            uint8_t rawBrightness = beatsin8(freq, 0, 255, 0, phase);
+            uint16_t brightness;
+            if (rawBrightness < 85)
+                brightness = brightnessLow;
+            else
+                brightness = map(rawBrightness, 85, 255, brightnessLow, brightnessHigh);
+            pwmBuffer[pwmIndex][channels[i]] = brightness;
+        }
+    });
 }
 
 // void dispatchPwm()
@@ -385,14 +402,11 @@ void dispatchPwm()
         Custom_PWMServoDriver *pwm = pwmArray[pwmIndex];
         if (pwm == nullptr)
             continue;
-        
-        uint16_t onValues[16] = {0};
         uint16_t offValues[16];
-        
         for (int channel = 0; channel < 16; channel++)
         {
             // 获取输入值 (0-255)
-            uint8_t input = pwmBuffer[pwmIndex][channel];
+            uint8_t input = pwmBufferCopy[pwmIndex][channel];
             
             // 边界优化处理
             if (input == 0) {
@@ -407,6 +421,6 @@ void dispatchPwm()
                 offValues[channel] = static_cast<uint16_t>(temp / 255);
             }
         }
-        pwm->setPWM_all(onValues, offValues);
+        pwm->setPWM_all(offValues);
     }
 }

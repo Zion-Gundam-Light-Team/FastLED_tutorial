@@ -6,6 +6,7 @@
 void runStoryModeAll(uint8_t slaveId);
 void runStoryModeSingle(uint8_t slaveId);
 void runStoryModeDev();
+void runStoryModeDemo();
 void resetModeState();
 
 typedef bool (*StoryMode)(uint8_t);
@@ -13,7 +14,7 @@ typedef struct
 {
     StoryMode story;
     String name;
-    String description;
+    uint8_t totalSeconds;
 } StoryModeAndName;
 typedef StoryModeAndName StoryModeAndNameList[];
 

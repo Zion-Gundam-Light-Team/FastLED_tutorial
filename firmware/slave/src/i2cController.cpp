@@ -7,6 +7,8 @@
 #include "../include/config.h"
 #include "../../shared/include/storymode/storyModeController.h"
 #include "../../shared/include/patterns/patterns_pwm.h"
+#include "../../shared/include/logger.h"
+#include "../include/otaReceiver.h"
 
 // Variable to store the timestamp when message was received
 unsigned long messageReceivedTime = 0;
@@ -21,6 +23,9 @@ bool extractModeId(const char* buffer, uint8_t* modeId)
   }
   return false;
 }
+
+// External flag from main_slave.cpp
+extern bool setupComplete;
 
 void receiveEvent(int howMany)
 {
@@ -49,20 +54,29 @@ void receiveEvent(int howMany)
   
   messageReceivedTime = millis();
   
-  Serial.printf("=== received Message: \"%s\"\n", i2c_buffer);
+  // Check if this is an OTA command (binary data, not text)
+  if (received_bytes >= 4 && i2c_buffer[0] >= 0x01 && i2c_buffer[0] <= 0x07) {    
+    // Only buffer OTA commands if setup is complete
+    // Otherwise the main loop isn't running to process them
+    if (setupComplete) {
+      // Buffer OTA command for processing in main loop (ISR-safe)
+      otaReceiver.bufferOTACommand(i2c_buffer, received_bytes);
+    } else {
+      LOG_WARN("OTA command received during setup - ignoring");
+    }
+    return; // Don't process as text command
+  }
+  
+  LOG_I2C("received : \"%s\"", i2c_buffer);
   
   lastMasterPollTime = millis();
   if (isInDevMode)
   {
     isInDevMode = false;
-    Serial.println("Exiting dev mode - master communication restored");
+    LOG_I2C("Exiting dev mode - master communication restored");
   }
-  if (strstr((char *)i2c_buffer, "StartWiFi") != NULL)
-  {
-    wifiSetUp = true;
-    Serial.println("WiFi setup command received from master");
-  }
-  else if (strstr((char *)i2c_buffer, "Mode:") != NULL)
+  // WiFi commands removed - slaves use I2C OTA from master
+  if (strstr((char *)i2c_buffer, "Mode:") != NULL)
   {
     uint8_t newModeId;
     bool hasValidModeId = extractModeId((char *)i2c_buffer, &newModeId);
@@ -73,26 +87,24 @@ void receiveEvent(int howMany)
       {
         currentModeId = newModeId;
         resetModeState();
-        Serial.printf("Mode: add -> currentModeId: %d\n", currentModeId);
+        LOG_STORY("Mode: add -> currentModeId: %d", currentModeId);
       }
-      else
-        Serial.println("ERROR: Mode: add missing mode ID");
     }
     else if (strstr((char *)i2c_buffer, "Mode: repeat") != NULL)
     {
       if (hasValidModeId)
       {
         currentModeId = newModeId;
-        Serial.printf("Mode: repeat -> currentModeId: %d\n", currentModeId);
+        LOG_STORY("Mode: repeat -> currentModeId: %d", currentModeId);
       }
       isRepeatMode = (isRepeatMode + 1) % 2;
-      Serial.printf("isRepeatMode: %d\n", isRepeatMode);
+      LOG_STORY("isRepeatMode: %d", isRepeatMode);
     }
     else if (strstr((char *)i2c_buffer, "Mode: next") != NULL)
     {
       if (hasValidModeId && newModeId < 100)  // Safety check for valid mode range
       {
-        Serial.printf("Mode: next -> transitioning from %d to %d\n", currentModeId, newModeId);
+        LOG_STORY("Mode: next -> transitioning from %d to %d", currentModeId, newModeId);
         
         // Safe mode transition with delay
         currentModeId = newModeId;
@@ -100,28 +112,33 @@ void receiveEvent(int howMany)
         enableRunStory = true;
         
         // Add delay before resetting mode state to prevent timing issues
-        delay(10);
+        delay(5);
         resetModeState();
-        delay(10);
         
-        Serial.printf("Mode: next -> completed transition to %d\n", currentModeId);
+        LOG_STORY("Mode: next -> completed transition to %d", currentModeId);
       }
       else
-        Serial.println("ERROR: Mode: next missing or invalid mode ID");
+        LOG_PRINTLN("ERROR: Mode: next missing or invalid mode ID");
     }
     else if (strstr((char *)i2c_buffer, "Mode: set") != NULL)
     {
       if (hasValidModeId && newModeId < 100)  // Safety check
       {
-        Serial.printf("Mode: set -> transitioning to %d\n", newModeId);
+        LOG_STORY("Mode: set -> transitioning to %d", newModeId);
         currentModeId = newModeId;
         delay(5);
         resetModeState();
-        delay(5);
-        Serial.printf("Mode: set -> completed transition to %d\n", currentModeId);
+        LOG_STORY("Mode: set -> completed transition to %d", currentModeId);
       }
       else
-        Serial.println("ERROR: Mode: set missing or invalid mode ID");
+        LOG_PRINTLN("ERROR: Mode: set missing or invalid mode ID");
+    }
+    else if (strstr((char *)i2c_buffer, "Mode: stop") != NULL)
+    {
+      runStoryCompleted = true;
+      enableRunStory = false;
+      resetModeState();
+      LOG_STORY("Mode: stop received - mode %d stopped and reset", currentModeId);
     }
   }
   else if (strstr((char *)i2c_buffer, "Encoder:") != NULL)
@@ -135,19 +152,40 @@ void receiveEvent(int howMany)
       brightness = constrain(newBrightness, MIN_BRIGHTNESS, MAX_BRIGHTNESS);
       FastLED.setBrightness(brightness);
       lastBrightCount = brightness;
-      
-      Serial.printf("Encoder brightness updated to: %d\n", brightness);
-    }
-    else
-    {
-      Serial.println("ERROR: Encoder message missing brightness value");
     }
   }
 }
 
+// Global buffer for OTA responses (non-static so otaReceiver can access)
+uint8_t otaResponseBuffer[8] = {0}; // Initialize to zeros
+bool hasOTAResponse = false;
+
 void requestEvent()
 {
   lastMasterPollTime = millis();
+  
+  // If setup is not complete, indicate not ready
+  if (!setupComplete) {
+    const char* notReady = "SETUP";
+    Wire.write((uint8_t)5);  // Length
+    Wire.write((const uint8_t*)notReady, 5);
+    return;
+  }
+  
+  // Check if we have a pending OTA response
+  if (hasOTAResponse) {
+    Wire.write(otaResponseBuffer, sizeof(otaResponseBuffer));
+    hasOTAResponse = false;  // Clear after sending
+    return;
+  }
+  
+  // During OTA or when OTA commands are pending, only respond to OTA requests
+  if (otaReceiver.getState() != OTA_RX_STATE_IDLE || otaReceiver.hasPendingCommands()) {
+    // No logging here - would be too frequent during OTA
+    // Send minimal response or no response during OTA
+    Wire.write((uint8_t)0);  // Send zero length to indicate busy/unavailable
+    return;
+  }
   
   // Create response string with buffer safety
   char response[32];  // Fixed size buffer
@@ -171,8 +209,8 @@ void requestEvent()
   Wire.write((const uint8_t*)response, len);
   
   // Simple, clear logging for slave response
-  Serial.printf("My Address: 0x%02X\n", SLAVE_I2C_ADDR);
-  Serial.printf("=== sent Response: \"%s\" (len=%d)\n", response, len);
+  LOG_I2C("My Address: 0x%02X", SLAVE_I2C_ADDR);
+  LOG_I2C("=== sent Response: \"%s\" (len=%d)", response, len);
 }
 
 void initSlaveI2C()
@@ -181,24 +219,19 @@ void initSlaveI2C()
   memset(i2c_buffer, 0, BUFFER_SIZE);
   received_bytes = 0;
   
-  Serial.printf("Initializing I2C slave at address 0x%02X on pins SDA=%d, SCL=%d\n", 
+  LOG_I2C("Initializing I2C slave at address 0x%02X on pins SDA=%d, SCL=%d", 
                 SLAVE_I2C_ADDR, I2C_SDA_PIN, I2C_SCL_PIN);
   
   // Try different initialization approach
-  bool success = Wire.begin((uint8_t)SLAVE_I2C_ADDR, I2C_SDA_PIN, I2C_SCL_PIN, MASTER_SLAVE_FREQUENCY);
+  bool success = Wire.begin((uint8_t)SLAVE_I2C_ADDR, I2C_SDA_PIN, I2C_SCL_PIN, NORMAL_I2C_FREQUENCY);
   
   if (success) {
-    Serial.println("I2C Wire.begin() successful");
-    
     // Set up event handlers
     Wire.onReceive(receiveEvent);
     Wire.onRequest(requestEvent);
 
-    Serial.printf("I2C Slave initialized successfully at address 0x%02X\n", SLAVE_I2C_ADDR);
-    Serial.println("Event handlers registered");
-  } else {
-    Serial.println("ERROR: I2C Wire.begin() failed!");
-  }
+    LOG_I2C("I2C Slave initialized successfully at address 0x%02X", SLAVE_I2C_ADDR);
+  } 
   
   // Give time for initialization
   delay(100);
@@ -207,5 +240,5 @@ void initSlaveI2C()
 void printReceivedArray()
 {
   for (int i = 0; i < BUFFER_SIZE; i++)
-    Serial.printf("%d ", slave_rx_buf[i]);
+    LOG_PRINT("%d ", slave_rx_buf[i]);
 }

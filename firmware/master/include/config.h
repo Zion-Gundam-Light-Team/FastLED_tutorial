@@ -15,6 +15,10 @@
 #define UART_VIDEO_ADDR 0xEE // 請到platformio.ini去定義mini monitor地址！
 #endif
 
+#ifndef ENABLE_VIDEO_UART // 請到platformio.ini去定義！
+#define ENABLE_VIDEO_UART 0 // 1 = enabled (default), 0 = disabled
+#endif
+
 #if UART_VIDEO_ADDR == 0xFF
 #error "UART_VIDEO_ADDR cannot be 0xFF as it's used as terminator"
 #endif
@@ -34,6 +38,7 @@
 // Brightness constants for encoder control
 #define MIN_BRIGHTNESS 1
 #define MAX_BRIGHTNESS 190
+#define BRIGHTNESS_SENSITIVITY 2
 
 extern SPIClass master;
 //SPI 
@@ -49,6 +54,6 @@ extern bool ack_match;
 
 // Encoder related variables
 extern volatile int lastBrightCount;
-extern int64_t newCount;
+extern volatile int newCount;
 
 #endif

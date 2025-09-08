@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slave Firmware 更新</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <div class="upload-container" style="max-width: 1200px; width: 95%;">
+        <div class="upload-header">
+            <img src="logo.png" alt="Logo" class="logo">
+            <h1>Slave 韌體更新</h1>
+            <p>透過 I2C 更新 Slave Firmware</p>
+        </div>
+
+        <!-- Modern Card-based Layout -->
+        <div class="main-layout">
+
+            <!-- Step 1: Device Selection Card -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">選擇 Slave</h3>
+                </div>
+
+                <div class="device-selection">
+                    <select id="slave_select" name="slaveId" class="modern-select">
+                        <option value="" disabled selected>載入可用的 Slave 設備中...</option>
+                    </select>
+                    <button type="button" id="refresh-slaves" class="refresh-btn">
+                        🔄 重新掃描
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: File Selection Card -->
+            <div class="step-card">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">選擇檔案</h3>
+                </div>
+
+                <form method='POST' action='#' enctype='multipart/form-data' id='slave_upload_form'>
+                    <input type='file' name='firmware' id='file' onchange='sub(this)' style='display:none'
+                        accept='.bin'>
+                    <label id='file-input' for='file' class="modern-file-input">
+                        <svg class="file-icon-large" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                        </svg>
+                        <div class="file-text-primary">點擊選擇韌體檔案</div>
+                        <div class="file-text-secondary">支援 .bin 格式檔案</div>
+                    </label>
+
+                    <!-- Submit Button -->
+                    <button type='submit' class="modern-submit-btn">
+                        開始更新 Slave
+                    </button>
+                </form>
+            </div>
+
+            <!-- Step 3: Progress Card -->
+            <div id="progress-card" class="step-card">
+                <div class="step-header">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">更新進度</h3>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress-section">
+                    <div class="progress-header">
+                        <span id='prg' class="progress-text"></span>
+                        <span id="progress-percent" class="progress-text">0%</span>
+                    </div>
+                    <div id='prgbar' class="modern-progress-bar">
+                        <div id='bar' class="modern-progress-fill"></div>
+                    </div>
+                </div>
+
+                <!-- Status Grid -->
+                <div class="status-grid">
+                    <div class="status-box">
+                        <div class="status-label">狀態</div>
+                        <div id="transfer-status" class="status-value">待機中</div>
+                    </div>
+                    <div class="status-box">
+                        <div class="status-label">速度</div>
+                        <div id="transfer-speed" class="status-value">--</div>
+                    </div>
+                    <div class="status-box">
+                        <div class="status-label">剩餘時間</div>
+                        <div id="time-remaining" class="status-value accent">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div id="success" class="modern-message success"></div>
+            <div id="error" class="modern-message error"></div>
+        </div>
+
+        </form>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(0, 102, 204, 0.2);">
+            <p style="font-size: 14px; color: #86868b;">
+                <strong>注意事項：</strong><br>
+                • I2C 傳輸速度約 20-40KB/秒 (400kHz 高速模式)<br>
+                • 1MB firmware 約需 25-50 秒<br>
+                • 更新過程中請勿斷電<br>
+                <span id="memory-info" style="color: #666; font-size: 0.8em; display: block; margin-top: 8px;"></span>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let uploadStartTime = 0;
+        let uploadSize = 0;
+        let checkStatusInterval = null;
+        let statusCheckRetries = 0;
+        let maxStatusCheckRetries = 10; // Allow 10 retries before giving up (10 seconds)
+
+        function sub(obj) {
+            var fileName = obj.value.split('\\');
+            var file = obj.files[0];
+            uploadSize = file ? file.size : 0;
+
+            // Validate file
+            if (file) {
+                // Check file extension
+                if (!fileName[fileName.length - 1].toLowerCase().endsWith('.bin')) {
+                    $('#error').html('❌ 檔案格式錯誤<br><small style="opacity: 0.8;">請選擇 .bin 格式的韌體檔案</small>').show();
+                    obj.value = '';
+                    return;
+                }
+
+                // Check file size (should be reasonable for ESP32 firmware)
+                if (file.size < 100000) { // Less than 100KB seems too small
+                    $('#error').html('❌ 檔案過小<br><small style="opacity: 0.8;">韌體檔案通常大於 100KB，請檢查檔案是否正確</small>').show();
+                    obj.value = '';
+                    return;
+                }
+
+                if (file.size > 2 * 1024 * 1024) { // Greater than 2MB
+                    $('#error').html('❌ 檔案過大<br><small style="opacity: 0.8;">韌體檔案不能超過 2MB</small>').show();
+                    obj.value = '';
+                    return;
+                }
+
+                // Clear any previous errors
+                $('#error').hide();
+            }
+
+            $('#file-input').html(`
+                <svg style="width: 48px; height: 48px; margin: 0 auto 12px; color: #10b981;" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                </svg>
+                <div style="color: #10b981; font-size: 16px; font-weight: 600; margin-bottom: 4px;">✓ 已選擇檔案</div>
+                <div style="color: #374151; font-size: 14px; font-weight: 500;">${fileName[fileName.length - 1]}</div>
+            `).addClass('file-selected');
+        };
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function formatTime(seconds) {
+            if (seconds < 60) return Math.round(seconds) + ' 秒';
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.round(seconds % 60);
+            return minutes + ' 分 ' + secs + ' 秒';
+        }
+
+        // Map state codes to UI strings
+        const stateMessages = {
+            0: '空閒中',
+            1: '傳輸中',
+            2: '驗證中',
+            3: '更新完成',
+            4: '更新失敗',
+            99: '準備開始'  // Special code for pending
+        };
+
+        const errorMessages = {
+            0: '未知錯誤',
+            1: '無法連接 Slave 設備，請檢查 I2C 連線',
+            2: '傳輸中斷，可能是 I2C 通訊失敗',
+            3: 'CRC 校驗失敗，韌體可能損壞'
+        };
+
+        function checkTransferStatus(slaveId) {
+            $.ajax({
+                url: '/slave_status?slaveId=' + slaveId,
+                type: 'GET',
+                success: function (data) {
+                    // Update progress
+                    const progress = data.progress || 0;
+                    $('#bar').css('width', progress + '%');
+                    $('#progress-percent').text(progress + '%');
+                    if (progress > 0) {
+                        $('#prg').text('I2C 傳輸至 Slave ' + slaveId);
+                    }
+
+                    // Calculate and display transfer speed
+                    if (uploadStartTime && progress > 0) {
+                        const elapsedSeconds = (Date.now() - uploadStartTime) / 1000;
+                        const bytesTransferred = (uploadSize * progress) / 100;
+                        const speed = bytesTransferred / elapsedSeconds;
+                        $('#transfer-speed').text(formatBytes(speed) + '/秒');
+
+                        // Estimate remaining time
+                        if (progress < 100) {
+                            const remainingBytes = uploadSize - bytesTransferred;
+                            const remainingSeconds = remainingBytes / speed;
+                            $('#time-remaining').text(formatTime(remainingSeconds));
+                        }
+                    }
+
+                    // Update status - map state code to UI string
+                    const stateText = stateMessages[data.stateCode] || '未知狀態';
+                    $('#transfer-status').text(stateText);
+
+                    // Check completion
+                    if (data.isComplete === 'true') {
+                        clearInterval(checkStatusInterval);
+                        $('#success').text('✅ Slave ' + slaveId + ' 更新成功！裝置將自動重啟').show();
+                        $('#transfer-status').text('更新完成');
+                        $('#time-remaining').text('完成');
+                        $('#prg').html('✅ 韌體更新完成');
+                        $('button[type="submit"]').prop('disabled', false).text('開始更新 Slave');
+                        $('#status-info').show(); // Keep status visible to show completion
+                    } else if (data.stateCode === 0 && progress === 100) {
+                        // Handle case where transfer completed but isComplete flag not set
+                        clearInterval(checkStatusInterval);
+                        $('#success').text('✅ Slave ' + slaveId + ' 韌體更新完成！裝置正在重新啟動').show();
+                        $('#transfer-status').text('重新啟動中');
+                        $('#time-remaining').text('完成');
+                        $('#prg').html('✅ 韌體更新完成，裝置重新啟動中...');
+                        $('button[type="submit"]').prop('disabled', false).text('開始更新 Slave');
+                    } else if (data.stateCode === 0 && progress >= 95 && progress < 100) {
+                        // Handle case where slave is likely rebooting after successful transfer (95%+ means very close to completion)
+                        clearInterval(checkStatusInterval);
+                        $('#success').text('✅ Slave ' + slaveId + ' 韌體更新完成！裝置正在重新啟動').show();
+                        $('#transfer-status').text('重新啟動中');
+                        $('#time-remaining').text('完成');
+                        $('#prg').html('✅ 韌體更新完成，裝置重新啟動中...');
+                        $('button[type="submit"]').prop('disabled', false).text('開始更新 Slave');
+                    } else if (data.stateCode === 0 && progress > 0 && progress < 95) {
+                        // Handle case where slave went idle during transfer (likely interruption, not success)
+                        clearInterval(checkStatusInterval);
+                        $('#success').text('⚠️ Slave ' + slaveId + ' 傳輸可能中斷').show();
+                        $('#transfer-status').text('請檢查設備狀態');
+                        $('#time-remaining').text('請檢查');
+                        $('#prg').html('⚠️ 傳輸可能中斷 (' + progress + '%)');
+                        $('button[type="submit"]').prop('disabled', false).text('開始更新 Slave');
+                    } else if (data.hasError === 'true') {
+                        clearInterval(checkStatusInterval);
+                        let errorMsg = '更新失敗';
+                        let detailMsg = '請檢查連線並重試';
+
+                        // Map error code to UI message
+                        if (data.errorCode !== null && errorMessages[data.errorCode]) {
+                            detailMsg = errorMessages[data.errorCode];
+                        }
+
+                        // Update status to show error state
+                        const stateText = stateMessages[data.stateCode] || '傳輸失敗';
+                        $('#transfer-status').text(stateText);
+
+                        $('#error').html('<div style="color: #ff3b30;">❌ ' + errorMsg + '</div><div style="font-size: 0.9em; opacity: 0.8; margin-top: 5px;">' + detailMsg + '</div>').show();
+                        $('button[type="submit"]').prop('disabled', false).text('開始更新 Slave');
+                    }
+                },
+                error: function () {
+                    statusCheckRetries++;
+                    console.log('Status check failed, retry ' + statusCheckRetries + '/' + maxStatusCheckRetries);
+                    
+                    // If we've hit too many retries and progress was high, assume success and reboot
+                    if (statusCheckRetries >= maxStatusCheckRetries) {
+                        var lastProgress = parseInt($('#progress-percent').text()) || 0;
+                        if (lastProgress >= 95) {
+                            clearInterval(checkStatusInterval);
+                            $('#success').text('✅ Slave ' + slaveId + ' 韌體更新完成！裝置已重新啟動').show();
+                            $('#transfer-status').text('更新完成');
+                            $('#time-remaining').text('完成');
+                            $('#prg').html('✅ 韌體更新完成，裝置已重新啟動');
+                            $('button[type="submit"]').prop('disabled', false).text('開始更新 Slave');
+                        } else {
+                            clearInterval(checkStatusInterval);
+                            $('#error').html('❌ 無法確認更新狀態<br><small style="opacity: 0.8;">請檢查設備連線狀態</small>').show();
+                            $('button[type="submit"]').prop('disabled', false).text('開始更新 Slave');
+                        }
+                    }
+                }
+            });
+        }
+
+        $('#slave_upload_form').submit(function (e) {
+            e.preventDefault();
+
+            var slaveId = $('#slave_select').val();
+
+            // Validate that a slave is selected
+            if (!slaveId || slaveId === '') {
+                $('#error').html('❌ 請選擇要更新的 Slave 設備<br><small style="opacity: 0.8;">如果沒有可用設備，請點擊「重新掃描」</small>').show();
+                return;
+            }
+
+            var form = $('#slave_upload_form')[0];
+            var data = new FormData(form);
+
+            // Add form data
+            data.append('slaveId', slaveId);
+
+            $('button[type="submit"]').prop('disabled', true).text('上傳中...');
+            $('#success').hide();
+            $('#error').hide();
+            $('#progress-card').show();
+            $('#transfer-status').text('上傳至 Master...');
+            uploadStartTime = Date.now();
+            statusCheckRetries = 0; // Reset retry counter for new upload
+
+            // First upload to master
+            $.ajax({
+                url: '/slave_upload?slaveId=' + slaveId,
+                type: 'POST',
+                data: data,
+                contentType: false,
+                processData: false,
+                xhr: function () {
+                    var xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener('progress', function (evt) {
+                        if (evt.lengthComputable) {
+                            var per = evt.loaded / evt.total;
+                            var percentage = Math.round(per * 100);
+                            $('#prg').html('上傳至 Master: ' + percentage + '%');
+                            $('#bar').css('width', percentage + '%');
+                        }
+                    }, false);
+                    return xhr;
+                },
+                success: function (d, s) {
+                    console.log('Upload to master successful!');
+                    $('#prg').html('開始 I2C 傳輸至 Slave ' + slaveId + '...');
+                    $('#bar').css('width', '0%');
+                    $('button[type="submit"]').text('傳輸中...');
+                    $('#transfer-status').text('I2C 傳輸中...');
+
+                    // Start checking transfer status
+                    checkStatusInterval = setInterval(function () {
+                        checkTransferStatus(slaveId);
+                    }, 1000); // Check every second
+                },
+                error: function (xhr, status, error) {
+                    let errorMsg = '上傳失敗';
+                    let detailMsg = '請檢查網路連線並重試';
+
+                    // Try to parse JSON error response
+                    if (xhr.responseText) {
+                        try {
+                            let response = JSON.parse(xhr.responseText);
+                            if (response.errorCode) {
+                                switch (response.errorCode) {
+                                    case 1:
+                                        errorMsg = '記憶體分配失敗';
+                                        detailMsg = `無法分配 ${response.requestedSize} bytes 暫存空間`;
+                                        if (response.freePsram > 0) {
+                                            detailMsg += ` (可用 PSRAM: ${response.freePsram} bytes)`;
+                                        } else if (!response.hasPsram) {
+                                            detailMsg += ' (PSRAM 不可用，請檢查硬體設定)';
+                                        }
+                                        break;
+                                    case 2:
+                                        errorMsg = '韌體過大';
+                                        detailMsg = `韌體大小 ${formatBytes(response.currentSize)} 超過 ${formatBytes(response.maxSize)} 限制`;
+                                        break;
+                                    case 3:
+                                        errorMsg = '記憶體不足';
+                                        detailMsg = `無法擴展暫存空間至 ${formatBytes(response.requestedCapacity)}`;
+                                        break;
+                                    case 4:
+                                        errorMsg = '記憶體錯誤';
+                                        detailMsg = '暫存區指標無效';
+                                        break;
+                                    case 5:
+                                        errorMsg = '儲存失敗';
+                                        detailMsg = '無法將韌體存入 SPIFFS，請檢查儲存空間';
+                                        break;
+                                    case 6:
+                                        errorMsg = '韌體無效';
+                                        detailMsg = '上傳的檔案無效或損壞，請重新選擇 .bin 檔案';
+                                        break;
+                                    case 7:
+                                        errorMsg = '上傳中斷';
+                                        detailMsg = '檔案上傳被中斷，請重試';
+                                        break;
+                                    default:
+                                        errorMsg = '未知錯誤';
+                                        detailMsg = '請重試或聯絡技術支援';
+                                }
+                            } else if (response.error) {
+                                // Legacy error handling for backward compatibility
+                                errorMsg = response.error;
+                                detailMsg = response.details || detailMsg;
+                            }
+                        } catch (e) {
+                            // Fallback for non-JSON responses
+                            if (xhr.responseText.length < 100) {
+                                detailMsg = xhr.responseText;
+                            }
+                        }
+                    }
+
+                    $('#prg').html('❌ ' + errorMsg);
+                    $('#error').html('<div style="color: #ff3b30;">❌ ' + errorMsg + '</div><div style="font-size: 0.9em; opacity: 0.8; margin-top: 5px;">' + detailMsg + '</div>').show();
+                    $('button[type="submit"]').prop('disabled', false).text('開始更新 Slave');
+
+                    // Reset status info to default values after error
+                    $('#transfer-status').text('待機中');
+                    $('#transfer-speed').text('--');
+                    $('#time-remaining').text('--');
+                }
+            });
+        });
+
+        // Load available slaves dynamically
+        function loadAvailableSlaves() {
+            $.ajax({
+                url: '/available_slaves',
+                type: 'GET',
+                success: function (data) {
+                    const select = $('#slave_select');
+                    select.empty(); // Clear existing options
+
+                    if (data.slaves && data.slaves.length > 0) {
+                        // Add available slaves
+                        data.slaves.forEach(function (slave) {
+                            const option = $('<option></option>')
+                                .attr('value', slave.id)
+                                .text(`Slave ${slave.id} (${slave.addressHex})`);
+                            select.append(option);
+                        });
+
+                        // Select the first available slave by default
+                        select.val(data.slaves[0].id);
+
+                        // Update UI to show found slaves
+                        console.log(`Found ${data.totalFound} active slaves`);
+                    } else {
+                        // No slaves found
+                        select.append('<option value="" disabled selected>找不到可用的 Slave 設備</option>');
+                        console.log('No active slaves found');
+                    }
+                },
+                error: function () {
+                    // Fallback to show error message
+                    $('#slave_select').empty().append('<option value="" disabled selected>無法載入 Slave 設備清單</option>');
+                    console.error('Failed to load available slaves');
+                }
+            });
+        }
+
+        // Load memory status for debugging
+        function loadMemoryStatus() {
+            $.ajax({
+                url: '/memory_status',
+                type: 'GET',
+                success: function (data) {
+                    let freeHeapKB = Math.round(data.freeHeap / 1024);
+                    let maxAllocKB = Math.round(data.maxAllocHeap / 1024);
+                    let psramMB = Math.round(data.psramSize / (1024 * 1024));
+                    let freePsramKB = Math.round(data.freePsram / 1024);
+
+                    let memoryText = '可用記憶體: ' + freeHeapKB + 'KB';
+                    if (psramMB > 0) {
+                        memoryText += ' + PSRAM: ' + freePsramKB + 'KB/' + psramMB + 'MB';
+                    }
+                    memoryText += ' (最大可分配: ' + maxAllocKB + 'KB)';
+
+                    $('#memory-info').text(memoryText);
+                },
+                error: function () {
+                    // Silently fail if endpoint not available
+                }
+            });
+        }
+
+        // Load slave count dynamically if needed
+        $(document).ready(function () {
+            loadAvailableSlaves();
+            loadMemoryStatus();
+
+            // Add refresh button handler
+            $('#refresh-slaves').click(function () {
+                const button = $(this);
+                const originalText = button.html();
+
+                // Show loading state
+                button.html('🔄 掃描中...').prop('disabled', true);
+                $('#slave_select').empty().append('<option value="" disabled selected>重新掃描中...</option>');
+
+                // Reload slaves
+                setTimeout(function () {
+                    loadAvailableSlaves();
+                    button.html(originalText).prop('disabled', false);
+                }, 1000);
+            });
+
+            // Add slave selection change handler
+            $('#slave_select').change(function () {
+                const selectedSlaveId = $(this).val();
+
+                if (selectedSlaveId && selectedSlaveId !== '') {
+                    // Re-enable submit button when valid slave is selected
+                    $('button[type="submit"]').prop('disabled', false).text('開始更新 Slave');
+
+                    // Clear any previous status/error messages
+                    $('#success').hide();
+                    $('#error').hide();
+                    $('#prg').html('');
+                    $('#bar').css('width', '0%');
+
+                    // Reset status info to default values
+                    $('#transfer-status').text('待機中');
+                    $('#transfer-speed').text('--');
+                    $('#time-remaining').text('--');
+
+                    // Clear any running intervals
+                    if (checkStatusInterval) {
+                        clearInterval(checkStatusInterval);
+                        checkStatusInterval = null;
+                    }
+
+                    console.log('Selected slave ' + selectedSlaveId + ' - UI reset for new upload');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

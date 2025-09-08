@@ -1,7 +1,7 @@
 #include <Adafruit_PWMServoDriver.h>
 #include "Custom_PWMServoDriver.h"
 
-bool Custom_PWMServoDriver::setPWM_all(uint16_t onValues[16], uint16_t offValues[16])
+bool Custom_PWMServoDriver::setPWM_all(uint16_t offValues[16])
 {
   if (!this->i2c_dev)
     return false;
@@ -10,8 +10,8 @@ bool Custom_PWMServoDriver::setPWM_all(uint16_t onValues[16], uint16_t offValues
 
   for (int i = 0; i < 16; i++)
   {
-    buffer[1 + i * 4] = onValues[i] & 0xFF;
-    buffer[2 + i * 4] = (onValues[i] >> 8) & 0xFF;
+    buffer[1 + i * 4] = 0; // ON_L = 0
+    buffer[2 + i * 4] = 0; // ON_H = 0
     buffer[3 + i * 4] = offValues[i] & 0xFF;
     buffer[4 + i * 4] = (offValues[i] >> 8) & 0xFF;
   }

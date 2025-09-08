@@ -1,5 +1,6 @@
 #include <Arduino.h>
-#include "../include/globals.h"
+#include "../../shared/include/globals.h"
+#include "../../shared/include/logger.h"
 #include "../include/uartController.h"
 
 void initUART(int rxPin, int txPin)
@@ -22,9 +23,10 @@ void sendUART(uint8_t address, uint8_t *data, uint8_t dataLength)
   for (uint8_t i = 0; i < dataLength; i++)
     Serial2.write(data[i]);
   Serial2.write(0xFF);
+  Serial2.flush();
 }
 
-void handleUARTCommunication(uint8_t address)
+void handleUARTVideo(uint8_t address)
 {
   receiveUART();
   if (address == 0xFF) // Invalid address
@@ -35,13 +37,13 @@ void handleUARTCommunication(uint8_t address)
     sendUART(address, &UARTVideoData);
     UARTSendImmediate = false;
     UARTStartTime = millis();
-    Serial.printf("Sent UART immediately: 0x%02X,0x%02X,0xFF\n", address, UARTVideoData);
+    LOG_UART("影片 UART: [0x%02X,0x%02X,0xFF]", address, UARTVideoData);
   }
   else if (UARTVideoData != UART_VIDEO_IDLE && (millis() - UARTStartTime > 5000))
   {
     UARTStartTime = millis();
     sendUART(address, &UARTVideoData);
-    Serial.printf("Sent UART regularly: 0x%02X,0x%02X,0xFF\n", address, UARTVideoData);
+    LOG_UART("影片 UART: [0x%02X,0x%02X,0xFF]", address, UARTVideoData);
   }
 }
 
@@ -49,30 +51,18 @@ void setUARTVideoMode(uint8_t mode, bool immediate)
 {
   UARTVideoData = mode;
   UARTSendImmediate = immediate;
-  if (immediate)
-  {
-    Serial.printf("UART video data set to 0x%02X for immediate transmission\n", UARTVideoData);
-  }
 }
 
 void setUARTVideoModeFromStoryMode(uint8_t storyModeId, bool immediate)
 {
   UARTVideoData = storyModeId + 1;
   UARTSendImmediate = immediate;
-  if (immediate)
-  {
-    Serial.printf("UART video data set to 0x%02X for immediate transmission\n", UARTVideoData);
-  }
 }
 
 void sendUARTVideoStop(bool immediate)
 {
   UARTVideoData = UART_VIDEO_STOP;
   UARTSendImmediate = immediate;
-  if (immediate)
-  {
-    Serial.printf("Sending UART_VIDEO_STOP (0x%02X) immediately\n", UART_VIDEO_STOP);
-  }
 }
 
 void initUARTVideoMode()

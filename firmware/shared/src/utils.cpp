@@ -2,6 +2,7 @@
 #include "../include/utils.h"
 #include "../include/globals.h"
 #include "../include/storymode/storyModeController.h"
+#include "../include/logger.h"
 
 CRGBPalette16 currentPalette = namedPalettes[0].palette;
 const char *currentPaletteName = namedPalettes[0].name;

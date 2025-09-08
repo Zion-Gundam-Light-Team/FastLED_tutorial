@@ -145,22 +145,34 @@ bool storyMode_0(uint8_t slaveId)
         {
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm0, lastUpdateArr_pwm0, flashingSpeed);
-            memcpy(pwmBuffer[PWM0], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM0], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm1, lastUpdateArr_pwm1, flashingSpeed);
-            memcpy(pwmBuffer[PWM1], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM1], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm2, lastUpdateArr_pwm2, flashingSpeed);
-            memcpy(pwmBuffer[PWM2], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM2], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm3, lastUpdateArr_pwm3, flashingSpeed);
-            memcpy(pwmBuffer[PWM3], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM3], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm4, lastUpdateArr_pwm4, flashingSpeed);
-            memcpy(pwmBuffer[PWM4], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM4], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm5, lastUpdateArr_pwm5, flashingSpeed);
-            memcpy(pwmBuffer[PWM5], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM5], tempBuffer, 16 * sizeof(uint16_t));
+            });
         }
         randomFlashWithGap_multiple(leds_RGB1, NUM_LEDS_RGB1, CRGB(maxBrightness, maxBrightness, maxBrightness), flashingChance, false, flashingSpeed, lastUpdate_rgb1, inGap1, gapTime);
         randomFlashWithGap_multiple(leds_RGB2, NUM_LEDS_RGB2, CRGB(maxBrightness, maxBrightness, maxBrightness), flashingChance, false, flashingSpeed, lastUpdate_rgb2, inGap2, gapTime);
@@ -225,22 +237,34 @@ bool storyMode_0(uint8_t slaveId)
         {
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm0, lastUpdateArr_pwm0, flashingSpeed);
-            memcpy(pwmBuffer[PWM0], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM0], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm1, lastUpdateArr_pwm1, flashingSpeed);
-            memcpy(pwmBuffer[PWM1], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM1], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm2, lastUpdateArr_pwm2, flashingSpeed);
-            memcpy(pwmBuffer[PWM2], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM2], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm3, lastUpdateArr_pwm3, flashingSpeed);
-            memcpy(pwmBuffer[PWM3], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM3], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm4, lastUpdateArr_pwm4, flashingSpeed);
-            memcpy(pwmBuffer[PWM4], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM4], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm5, lastUpdateArr_pwm5, flashingSpeed);
-            memcpy(pwmBuffer[PWM5], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM5], tempBuffer, 16 * sizeof(uint16_t));
+            });
         }
         randomLightUp(leds_RGB1, NUM_LEDS_RGB1, CRGB(maxBrightness, maxBrightness, maxBrightness), 4, selected_RGB1);
         randomLightUp(leds_RGB2, NUM_LEDS_RGB2, CRGB(maxBrightness, maxBrightness, maxBrightness), 4, selected_RGB2);
@@ -300,22 +324,34 @@ bool storyMode_0(uint8_t slaveId)
         {
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm0, lastUpdateArr_pwm0, flashingSpeed);
-            memcpy(pwmBuffer[PWM0], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM0], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm1, lastUpdateArr_pwm1, flashingSpeed);
-            memcpy(pwmBuffer[PWM1], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM1], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm2, lastUpdateArr_pwm2, flashingSpeed);
-            memcpy(pwmBuffer[PWM2], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM2], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm3, lastUpdateArr_pwm3, flashingSpeed);
-            memcpy(pwmBuffer[PWM3], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM3], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm4, lastUpdateArr_pwm4, flashingSpeed);
-            memcpy(pwmBuffer[PWM4], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM4], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm5, lastUpdateArr_pwm5, flashingSpeed);
-            memcpy(pwmBuffer[PWM5], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM5], tempBuffer, 16 * sizeof(uint16_t));
+            });
         }
         randomLightUp(leds_RGB1, NUM_LEDS_RGB1, CRGB(maxBrightness, maxBrightness, maxBrightness), 4, selected_RGB1);
         randomLightUp(leds_RGB2, NUM_LEDS_RGB2, CRGB(maxBrightness, maxBrightness, maxBrightness), 4, selected_RGB2);
@@ -368,22 +404,34 @@ bool storyMode_0(uint8_t slaveId)
         {
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm0, lastUpdateArr_pwm0, flashingSpeed);
-            memcpy(pwmBuffer[PWM0], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM0], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm1, lastUpdateArr_pwm1, flashingSpeed);
-            memcpy(pwmBuffer[PWM1], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM1], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm2, lastUpdateArr_pwm2, flashingSpeed);
-            memcpy(pwmBuffer[PWM2], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM2], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm3, lastUpdateArr_pwm3, flashingSpeed);
-            memcpy(pwmBuffer[PWM3], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM3], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm4, lastUpdateArr_pwm4, flashingSpeed);
-            memcpy(pwmBuffer[PWM4], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM4], tempBuffer, 16 * sizeof(uint16_t));
+            });
             tempBuffer = pwmFlashRandomWithChance(
                 minBrightness_pwm, maxBrightness_pwm, flashingChance, isOnArr_pwm5, lastUpdateArr_pwm5, flashingSpeed);
-            memcpy(pwmBuffer[PWM5], tempBuffer, 16 * sizeof(uint16_t));
+            PWM_UPDATE_SAFE({
+                memcpy(pwmBuffer[PWM5], tempBuffer, 16 * sizeof(uint16_t));
+            });
         }
         randomLightUp(leds_RGB1, NUM_LEDS_RGB1, CRGB(maxBrightness, maxBrightness, maxBrightness), 4, selected_RGB1);
         randomLightUp(leds_RGB2, NUM_LEDS_RGB2, CRGB(maxBrightness, maxBrightness, maxBrightness), 4, selected_RGB2);

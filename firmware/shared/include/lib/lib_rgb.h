@@ -81,6 +81,7 @@ typedef struct
 
 void rgbOff(CRGB *leds, int NUM_LEDS);
 void rgbOn(CRGB *leds, int NUM_LEDS, CRGB color);
+void mapEffectBuffer(CRGBSet &strip, CRGB *effectBuffer, int numLeds);
 bool rgb_fadeOut(CRGB *leds, int NUM_LEDS, uint8_t fadeSpeed);
 void randomFlash_single(CRGB *leds, int NUM_LEDS, CRGB color, fract8 chance, bool fadeEffect, int bpm, unsigned long &lastUpdate);
 void randomFlash_multiple(CRGB *leds, int NUM_LEDS, CRGB color, fract8 chance, bool fadeEffect, int bpm, unsigned long &lastUpdate);
@@ -102,4 +103,7 @@ void pride(CRGB *leds, int NUM_LEDS);
 void paletteFlow(CRGB *leds, uint8_t *colorIndex, int NUM_LEDS, unsigned long *lastUpdate, bool *initialized, CRGBPalette16 &palette, uint8_t speed);
 bool comet(CRGB *leds, int NUM_LEDS, CRGB color, uint8_t speed, uint8_t tailRange, uint8_t headRange, uint8_t *lastPos, bool *reachedEnd, bool isLoop);
 void twoSideComet(CRGB *leds, int NUM_LEDS, CRGB color, uint8_t speed, uint8_t diffusionRange);
+bool pairSwipeOn(CRGBSet &strip1, CRGBSet &strip2, CRGB *tempStrip1, CRGB *tempStrip2, 
+                 uint8_t num, uint8_t *index1, uint8_t *index2, 
+                 CRGBPalette16 &palette, unsigned long idleTime, unsigned long *idleStartTime);
 #endif

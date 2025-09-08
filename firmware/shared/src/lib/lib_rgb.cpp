@@ -12,6 +12,13 @@ void rgbOff(CRGB *leds, int NUM_LEDS)
     fill_solid(leds, NUM_LEDS, CRGB::Black);
 }
 
+void mapEffectBuffer(CRGBSet &strip, CRGB *effectBuffer, int numLeds)
+{
+    for(int i = 0; i < numLeds; i++) {
+        strip[i] = effectBuffer[i];
+    }
+}
+
 void rgbOn(CRGB *leds, int NUM_LEDS, CRGB color)
 {
     fill_solid(leds, NUM_LEDS, color);
@@ -968,3 +975,33 @@ void turbine(CRGB *leds, int NUM_LEDS, TurbineInstance *instance, uint8_t hueDif
         break;
     }
 }
+
+bool pairSwipeOn(CRGBSet &strip1, CRGBSet &strip2, CRGB *tempStrip1, CRGB *tempStrip2, 
+                 uint8_t num, uint8_t *index1, uint8_t *index2, 
+                 CRGBPalette16 &palette, unsigned long idleTime, unsigned long *idleStartTime) {
+    
+    if (*idleStartTime == 0) {
+        swipeColorsOn(tempStrip2, index2, num, palette);
+        bool complete = swipeColorsOn(tempStrip1, index1, num, palette);
+        
+        mapEffectBuffer(strip1, tempStrip1, num);
+        mapEffectBuffer(strip2, tempStrip2, num);
+        
+        if (complete) {
+            *idleStartTime = millis();
+        }
+        return false;
+    } else {
+        mapEffectBuffer(strip1, tempStrip1, num);
+        mapEffectBuffer(strip2, tempStrip2, num);
+        
+        if (millis() - *idleStartTime >= idleTime) {
+            *index1 = 0;
+            *index2 = 0;
+            *idleStartTime = 0;
+            return true;
+        }
+        return false;
+    }
+}
+

@@ -6,15 +6,19 @@
 #include <WiFiManager.h>
 
 void initAPI();
-void getInfoPage();
-void getLoginPage();
 void getStyleCSS();
 void getLogoPNG();
 void setDisconnect();
-void setSlaveWiFi();
-void getUploadPage();
 void handleUpdate();
 void handleUpload();
+void handleSlaveUpload();
+void getSlaveOTAPage();
+void getSlaveOTAStatus();
+void getAvailableSlaves();
+void getMemoryStatus();
 void get404Page();
+
+// OTA control variable
+extern uint8_t pendingSlaveOTA;
 
 #endif

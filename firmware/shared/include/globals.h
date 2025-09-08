@@ -3,9 +3,6 @@
 
 #include <FastLED.h>
 
-#ifndef WIFI_NAME // it is supposed to predefine in platformio.ini
-#define WIFI_NAME "Angela_esp32" // Default value if not defined
-#endif
 
 #ifndef ACTUAL_SLAVE_NUM
 #define ACTUAL_SLAVE_NUM 10 // 不要修改這裡！ 請到platformio.ini去定義實際使用的slave數量!
@@ -15,13 +12,32 @@
 #define MAX_NUM_SLAVE 25 // 不要修改這裡！
 #endif
 
+#ifndef STORYMODE_0_TOTAL_SECONDS
+#define STORYMODE_0_TOTAL_SECONDS 47 // 不要修改這裡！ 請到platformio_local.ini去定義
+#endif
+
+#ifndef STORYMODE_1_TOTAL_SECONDS
+#define STORYMODE_1_TOTAL_SECONDS 176 // 不要修改這裡！ 請到platformio_local.ini去定義
+#endif
+
+#ifndef STORYMODE_2_TOTAL_SECONDS
+#define STORYMODE_2_TOTAL_SECONDS 158 // 不要修改這裡！ 請到platformio_local.ini去定義
+#endif
+
+#ifndef STORYMODE_3_TOTAL_SECONDS
+#define STORYMODE_3_TOTAL_SECONDS 158 // 不要修改這裡！ 請到platformio_local.ini去定義
+#endif
+
 #define LED_TYPE WS2812B
 #define COLOR_ORDER GRB
 
 #define PWM_FREQUENCY 60
 #define PWM_MAX_BRIGHTNESS 4095
 
-#define MASTER_SLAVE_FREQUENCY 100000
+#define PWM_DISPATCH_FREQUENCY 20 // 20ms, 50Hz
+#define PWM_I2C_FREQUENCY 400000
+#define NORMAL_I2C_FREQUENCY 100000
+#define OTA_I2C_FREQUENCY 400000
 #define RGB_FREQUENCY 100
 
 #define BUFFER_SIZE 64
@@ -33,6 +49,7 @@
 #define MILLI_AMPS 1600
 
 //------------RGB LED PINS------------//
+#define LED_PIN_RGB0 12
 #define LED_PIN_RGB1 1
 #define LED_PIN_RGB2 2
 #define LED_PIN_RGB3 3
@@ -79,25 +96,36 @@
 #define PWM_LED_PIN_14 14
 #define PWM_LED_PIN_15 15
 
+#ifndef NUM_LEDS_RGB0
+#define NUM_LEDS_RGB0 200 // 不要修改這裡！ 請到platformio_local.ini去定義RGB燈珠數量!
+#endif
 #ifndef NUM_LEDS_RGB1
-#define NUM_LEDS_RGB1 10 // 不要修改這裡！ 請到platformio.ini去定義RGB燈珠數量!
+#define NUM_LEDS_RGB1 10 // 不要修改這裡！ 請到platformio_local.ini去定義RGB燈珠數量!
 #endif
 #ifndef NUM_LEDS_RGB2
-#define NUM_LEDS_RGB2 10 // 不要修改這裡！ 請到platformio.ini去定義RGB燈珠數量!
+#define NUM_LEDS_RGB2 10 // 不要修改這裡！ 請到platformio_local.ini去定義RGB燈珠數量!
 #endif
 #ifndef NUM_LEDS_RGB3
-#define NUM_LEDS_RGB3 10 // 不要修改這裡！ 請到platformio.ini去定義RGB燈珠數量!
+#define NUM_LEDS_RGB3 10 // 不要修改這裡！ 請到platformio_local.ini去定義RGB燈珠數量!
 #endif
 #ifndef NUM_LEDS_RGB4
-#define NUM_LEDS_RGB4 10 // 不要修改這裡！ 請到platformio.ini去定義RGB燈珠數量!
+#define NUM_LEDS_RGB4 10 // 不要修改這裡！ 請到platformio_local.ini去定義RGB燈珠數量!
 #endif
+
+#define NUM_LEDS_RGB0_STRIP1 15
+#define NUM_LEDS_RGB0_STRIP2 15
+#define NUM_LEDS_RGB0_STRIP3 15
+#define NUM_LEDS_RGB0_STRIP4 15 
 
 #define MAX_LEDS 180  // Or whatever your maximum LED count is
 
+extern CRGB leds_RGB0[NUM_LEDS_RGB0];
 extern CRGB leds_RGB1[NUM_LEDS_RGB1];
 extern CRGB leds_RGB2[NUM_LEDS_RGB2];
 extern CRGB leds_RGB3[NUM_LEDS_RGB3];
 extern CRGB leds_RGB4[NUM_LEDS_RGB4];
+
+extern CRGBSet strip1, strip2, strip3, strip4;
 
 extern char buffer[1024];
 
@@ -119,12 +147,6 @@ extern uint8_t sparking; // suggested range 50-200
 
 extern int SSstate;
 
-extern const char *WIFI_PASSWORD;
-extern bool wifiSetUp;
-extern int ApTimeout;
-extern bool wifiResponse;
-extern bool wifiInitialized;
-
 extern unsigned long startTime_footplate;
 extern unsigned long startTime_axe;
 extern unsigned long startTime_breath;
@@ -134,6 +156,8 @@ extern unsigned long startTime_mode0;
 extern unsigned long startTime_mode1;
 extern unsigned long startTime_mode2;
 extern unsigned long startTime_mode3;
+extern unsigned long startTime_modeDev;
+extern unsigned long startTime_modeDemo;
 
 // Timeout tracking for dev mode
 extern unsigned long lastMasterPollTime;
@@ -150,6 +174,13 @@ enum STATE_UART_VIDEO
     UART_VIDEO_PLAY_4 = 0x04,
     UART_VIDEO_STOP = 0xAA,
 };
+
+  enum STATE_UART_TIMER {
+      UART_TIMER_IDLE = 0x00,
+      UART_TIMER_ACTIVE = 0x01,
+      UART_TIMER_PAUSED = 0x02,
+      UART_TIMER_EXPIRED = 0x03,
+  };
 
 enum STATE_FOOTPLATE
 {
@@ -275,6 +306,28 @@ enum STATE_MODE_DEV
     MODE_DEV_START
 };
 
+enum STATE_MODE_DEMO
+{
+    MODE_DEMO_INIT,
+    MODE_DEMO_1,
+    MODE_DEMO_1_IDLE,
+    MODE_DEMO_2,
+    MODE_DEMO_2_IDLE,
+    MODE_DEMO_3,
+    MODE_DEMO_3_IDLE,
+    MODE_DEMO_4,
+    MODE_DEMO_4_IDLE,
+    MODE_DEMO_5,
+    MODE_DEMO_5_IDLE,
+    MODE_DEMO_6,
+    MODE_DEMO_6_IDLE,
+    MODE_DEMO_7,
+    MODE_DEMO_7_IDLE,
+    MODE_DEMO_8,
+    MODE_DEMO_8_IDLE,
+    MODE_DEMO_END
+};
+
 extern STATE_FOOTPLATE footPlateState;
 extern STATE_AXE axeState;
 extern STATE_BREATH breathState;
@@ -285,5 +338,6 @@ extern STATE_MODE_1 mode1State;
 extern STATE_MODE_2 mode2State;
 extern STATE_MODE_3 mode3State;
 extern STATE_MODE_DEV modeDevState;
+extern STATE_MODE_DEMO modeDemoState;
 
 #endif // GLOBALS_H

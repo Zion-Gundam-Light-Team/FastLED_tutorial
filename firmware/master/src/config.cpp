@@ -18,4 +18,4 @@ bool ack_match = false;
 
 // Encoder related variables
 volatile int lastBrightCount = 0;
-int64_t newCount = 0;
+volatile int newCount = 0;
