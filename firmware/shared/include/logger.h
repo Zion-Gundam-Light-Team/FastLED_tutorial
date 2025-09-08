@@ -99,6 +99,11 @@ inline void _log_timestamp() {
 #define LOG_WIFI(fmt, ...)
 #define LOG_UART(fmt, ...)
 #define LOG_API(fmt, ...)
+#define LOG_OTA(fmt, ...)
+#define LOG_INFO(fmt, ...)
+#define LOG_ERROR(fmt, ...)
+#define LOG_WARN(fmt, ...)
+#define LOG_DEBUG(fmt, ...)
 #define LOG_SEPARATOR()
 #define LOG_SECTION(title)
 #endif
