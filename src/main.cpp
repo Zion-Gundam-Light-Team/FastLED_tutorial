@@ -85,6 +85,10 @@ uint8_t colorIndex = 0;
 void waveEFfects(CRGB* leds, uint8_t* colorIndex, int NUM_LEDS) {
     fill_palette(leds, NUM_LEDS, *colorIndex, 5, oceanPalette, 255,
                  LINEARBLEND);
+    // for(int i = 0; i < NUM_LEDS; i++){
+    //     leds[i] = ColorFromPalette(oceanPalette, *colorIndex + i*5, 255,
+    //     LINEARBLEND); // like deltahue of each led is 5 because +i*5
+    // }
     FastLED.show();
     delay(50);
     *colorIndex += 5;
