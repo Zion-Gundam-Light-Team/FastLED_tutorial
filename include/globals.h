@@ -7,15 +7,15 @@
 #define PWM_MAX_BRIGHTNESS 4095
 #define RGB_FREQUENCY 10
 
-#define MAX_LEDS 180 // Or whatever your maximum LED count is
+#define MAX_LEDS 180  // Or whatever your maximum LED count is
 
 #define NUM_RGB1 10
 #define NUM_RGB2 10
 #define NUM_RGB3 10
 
 //------------PWM I2C-------------//
-#define PIN_PWM_SDA 6
-#define PIN_PWM_SCL 5
+#define PIN_PWM_SDA 5
+#define PIN_PWM_SCL 6
 //-------------RGB----------------//
 #define PIN_RGB1 1
 #define PIN_RGB2 2
@@ -62,8 +62,8 @@ extern uint8_t isRepeatMode;
 extern uint8_t gHue;
 extern uint8_t brightness;
 
-extern uint8_t cooling;  // suggested range 20-100
-extern uint8_t sparking; // suggested range 50-200
+extern uint8_t cooling;   // suggested range 20-100
+extern uint8_t sparking;  // suggested range 50-200
 
 extern unsigned long startTime_footplate;
 extern unsigned long startTime_axe;
@@ -75,8 +75,7 @@ extern unsigned long startTime_mode2;
 extern unsigned long startTime_mode3;
 extern unsigned long startTime_modeDemo;
 
-enum STATE_FOOTPLATE
-{
+enum STATE_FOOTPLATE {
     FOOTPLATE_INIT,
     FOOTPLATE_FADEIN,
     FOOTPLATE_FLASH1,
@@ -92,8 +91,7 @@ enum STATE_FOOTPLATE
     FOOTPLATE_END
 };
 
-enum STATE_AXE
-{
+enum STATE_AXE {
     AXE_INIT,
     AXE_SWIPEIN,
     AXE_WHITELIGHT_SWIPE,
@@ -101,24 +99,16 @@ enum STATE_AXE
     AXE_END
 };
 
-enum STATE_BREATH
-{
-    BREATH_INIT,
-    BREATH_SWIPEIN,
-    BREATH_MAIN,
-    BREATH_FADE_OUT
-};
+enum STATE_BREATH { BREATH_INIT, BREATH_SWIPEIN, BREATH_MAIN, BREATH_FADE_OUT };
 
-enum STATE_STORING_ENERGY
-{
+enum STATE_STORING_ENERGY {
     STORING_ENERGY_INIT = 0,
     STORING_ENERGY_FILL,
     STORING_ENERGY_FALLBACK,
     STORING_ENERGY_END,
 };
 
-enum STATE_TURBINE
-{
+enum STATE_TURBINE {
     TURBINE_INIT,
     TURBINE_WHITE_FLASH1,
     TURBINE_OFF_KEEP,
@@ -130,30 +120,13 @@ enum STATE_TURBINE
     TURBINE_END
 };
 
-enum STATE_VENT
-{
-    VENT_INIT,
-    VENT_MAIN,
-    VENT_FADE_OUT
-};
+enum STATE_VENT { VENT_INIT, VENT_MAIN, VENT_FADE_OUT };
 
-enum STATE_CYBER
-{
-    CYBER_INIT,
-    CYBER_MAIN,
-    CYBER_FADE_OUT
-};
+enum STATE_CYBER { CYBER_INIT, CYBER_MAIN, CYBER_FADE_OUT };
 
+enum STATE_MODE_0 { MODE_0_INIT, MODE_0_MAIN, MODE_0_END };
 
-enum STATE_MODE_0
-{
-    MODE_0_INIT,
-    MODE_0_MAIN,
-    MODE_0_END
-};
-
-enum STATE_MODE_1
-{
+enum STATE_MODE_1 {
     MODE_1_INIT,
     MODE_1_START,
     MODE_1_CONTINUE,
@@ -161,15 +134,9 @@ enum STATE_MODE_1
     MODE_1_END
 };
 
-enum STATE_MODE_DEMO
-{
-    MODE_DEMO_INIT,
-    MODE_DEMO_MAIN,
-    MODE_DEMO_END
-};
+enum STATE_MODE_DEMO { MODE_DEMO_INIT, MODE_DEMO_MAIN, MODE_DEMO_END };
 
-enum STATE_GUNFIRE
-{
+enum STATE_GUNFIRE {
     GUNFIRE_INIT = 0,
     GUNFIRE_FADEIN,
     GUNFIRE_COLOR_FLASH1,
@@ -200,4 +167,4 @@ extern STATE_MODE_0 mode0State;
 extern STATE_MODE_1 mode1State;
 extern STATE_MODE_DEMO modeDemoState;
 extern STATE_GUNFIRE gunfireState;
-#endif // GLOBALS_H
+#endif  // GLOBALS_H

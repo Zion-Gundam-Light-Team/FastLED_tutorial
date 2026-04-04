@@ -1,13 +1,15 @@
+#include "storyMode/storyMode_demo.h"
+
 #include <Arduino.h>
 #include <FastLED.h>
+
 #include "../include/globals.h"
-#include "../include/patterns_pwm.h"
+#include "../include/lib_effects.h"
+#include "../include/palettes.h"
 #include "../include/patterns_led.h"
+#include "../include/patterns_pwm.h"
 #include "../include/patterns_rgb.h"
 #include "storyMode/storyModes.h"
-#include "storyMode/storyMode_demo.h"
-#include "../include/palettes.h"
-#include "../include/lib_effects.h"
 
 static unsigned long lastMillis = 0;
 static unsigned long currentTime = millis();
@@ -85,13 +87,11 @@ static bool blueWaveInit3 = false;
 // static bool isOn1 = false;
 // static bool isOn2 = false;
 
-
 // //-------虹光燈params------//
 static uint8_t startHue_rainbow1 = 0;
 // static uint8_t startHue_rainbow2 = 0;
 // static uint8_t startHue_rainbow3 = 0;
 // static uint8_t startHue_rainbow4 = 0;
-
 
 //-------斧頭燈params------//
 static uint8_t startHue_axe = 0;
@@ -193,47 +193,50 @@ static int currentIndexSwipe = 0;
 static uint8_t SwipeHue = 0;
 
 //-------斧頭燈params------//
-static AxeInstance axeInstance1 = {
-    .state = AXE_INIT,
-    .startTime = 0,
-    .i = 0,
-    .whiteLightSpeed = 1,
-    .whiteLightSpeedCounter = 0,
-    .hold = false,
-    .holdStartTime = 0,
-    .hue = 0,
-    .currentIndex = 0
-};
+static AxeInstance axeInstance1 = {.state = AXE_INIT,
+                                   .startTime = 0,
+                                   .i = 0,
+                                   .whiteLightSpeed = 1,
+                                   .whiteLightSpeedCounter = 0,
+                                   .hold = false,
+                                   .holdStartTime = 0,
+                                   .hue = 0,
+                                   .currentIndex = 0};
 
-bool storyMode_demo()
-{
-    switch (modeDemoState)
-    {
-    case MODE_DEMO_INIT:
-        rgbOff(leds_RGB1, NUM_RGB1);
-        pwmOffAll(pwmBuffer);
-        startTime_modeDemo = millis();
-        lastUpdate_blueWave1 = millis();
-        lastUpdate_blueWave2 = millis();
-        lastUpdate_blueWave3 = millis();
-        modeDemoState = MODE_DEMO_MAIN;
-        return false;
-    case MODE_DEMO_MAIN:
-        // gradientRainbowSwipe(leds_RGB1, NUM_RGB1, &startHue_rainbow1, 1, false, 150000);
-        axe(leds_RGB1, NUM_RGB1, &axeInstance1); // 3 *(2020 strips)
-        // swipeDynamicRainbow(leds_RGB1,&currentIndexSwipe,NUM_RGB1,&SwipeHue,2);
-        // paletteFlow(leds_RGB1, blueWaveIndex_RGB1, NUM_RGB1, &lastUpdate_blueWave1, &blueWaveInit1, blue_wave_p,1);
-        // paletteFlow(leds_RGB2, blueWaveIndex_RGB2, NUM_RGB2, &lastUpdate_blueWave2, &blueWaveInit2, blue_wave_p);
-        // paletteFlow(leds_RGB3, blueWaveIndex_RGB3, NUM_RGB3, &lastUpdate_blueWave3, &blueWaveInit3, blue_wave_p);
-        // comet(leds_RGB1, NUM_RGB1, CRGB::Blue, 30, 3, 1);
-        // flame(leds_RGB1, NUM_RGB1, 10, 5);
-        // randomBreath_single(leds_RGB1, NUM_RGB1, CRGB::Blue, 50, lastUpdate_blueWave1);
-        return false;
-    case MODE_DEMO_END:
-        rgbOff(leds_RGB1, NUM_RGB1);
-        pwmOffAll(pwmBuffer);
-        return millis() - startTime_modeDemo >= 10000;
-    default:
-        return false;
+bool storyMode_demo() {
+    switch (modeDemoState) {
+        case MODE_DEMO_INIT:
+            rgbOff(leds_RGB1, NUM_RGB1);
+            pwmOffAll(pwmBuffer);
+            startTime_modeDemo = millis();
+            lastUpdate_blueWave1 = millis();
+            lastUpdate_blueWave2 = millis();
+            lastUpdate_blueWave3 = millis();
+            modeDemoState = MODE_DEMO_MAIN;
+            return false;
+        case MODE_DEMO_MAIN:
+            // gradientRainbowSwipe(leds_RGB1, NUM_RGB1, &startHue_rainbow1, 1,
+            // false, 150000);
+            axe(leds_RGB1, NUM_RGB1, &axeInstance1);  // 3 *(2020 strips)
+            pwmBuffer[0][0] = pwmOn(500);
+            pwmBuffer[0][1] = pwmOn(500);
+            // swipeDynamicRainbow(leds_RGB1,&currentIndexSwipe,NUM_RGB1,&SwipeHue,2);
+            // paletteFlow(leds_RGB1, blueWaveIndex_RGB1, NUM_RGB1,
+            // &lastUpdate_blueWave1, &blueWaveInit1, blue_wave_p,1);
+            // paletteFlow(leds_RGB2, blueWaveIndex_RGB2, NUM_RGB2,
+            // &lastUpdate_blueWave2, &blueWaveInit2, blue_wave_p);
+            // paletteFlow(leds_RGB3, blueWaveIndex_RGB3, NUM_RGB3,
+            // &lastUpdate_blueWave3, &blueWaveInit3, blue_wave_p);
+            // comet(leds_RGB1, NUM_RGB1, CRGB::Blue, 30, 3, 1);
+            // flame(leds_RGB1, NUM_RGB1, 10, 5);
+            // randomBreath_single(leds_RGB1, NUM_RGB1, CRGB::Blue, 50,
+            // lastUpdate_blueWave1);
+            return false;
+        case MODE_DEMO_END:
+            rgbOff(leds_RGB1, NUM_RGB1);
+            pwmOffAll(pwmBuffer);
+            return millis() - startTime_modeDemo >= 10000;
+        default:
+            return false;
     }
 }

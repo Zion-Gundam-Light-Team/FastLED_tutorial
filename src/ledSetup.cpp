@@ -1,12 +1,13 @@
-#include <Wire.h>
-#include "Custom_PWMServoDriver.h"
 #include "../include/ledSetup.h"
-#include "../include/globals.h"
-#include "storyMode/storyModes.h"
-#include "../include/config.h"
 
-void initLED()
-{
+#include <Wire.h>
+
+#include "../include/config.h"
+#include "../include/globals.h"
+#include "Custom_PWMServoDriver.h"
+#include "storyMode/storyModes.h"
+
+void initLED() {
     //-------------s3 GPIOs-------------//
     pinMode(PIN_LED_5, OUTPUT);
     pinMode(PIN_LED_6, OUTPUT);
@@ -25,8 +26,7 @@ void initLED()
     //-------------s3 GPIOs-------------//
 }
 
-void initFastLED()
-{
+void initFastLED() {
     FastLED.addLeds<WS2812B, PIN_RGB1, GRB>(leds_RGB1, NUM_RGB1);
     FastLED.addLeds<WS2812B, PIN_RGB2, GRB>(leds_RGB2, NUM_RGB2);
     FastLED.addLeds<WS2812B, PIN_RGB3, GRB>(leds_RGB3, NUM_RGB3);
@@ -36,15 +36,13 @@ void initFastLED()
     FastLED.setBrightness(40);
 }
 
-void runPattern()
-{
-    // runStoryModeDemo();
+void runPattern() {
+    runStoryModeDemo();
     // runStoryModeAll();
-    runStoryModeSingle();
+    // runStoryModeSingle();
 }
 
-void resetPattern()
-{
+void resetPattern() {
     FastLED.clear();
     FastLED.setBrightness(brightness);
 }
