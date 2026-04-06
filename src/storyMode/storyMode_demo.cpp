@@ -334,6 +334,14 @@ bool storyMode_demo()
             rgbOff(leds_RGB2, NUM_RGB2);
             rgbOff(leds_RGB3, NUM_RGB3);
             pwmOffAll(pwmBuffer);
+            lastPos = 255;
+            reachedEnd = false;
+
+            lastPos2 = 255;
+            reachedEnd2 = false;
+
+            lastPos3 = 255;
+            reachedEnd3 = false;
             startTime_modeDemo = millis();
             modeDemoState = MODE_DEMO_STAGE4;
         }
