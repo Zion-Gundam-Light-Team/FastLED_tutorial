@@ -127,9 +127,10 @@ bool storyMode_0()
         mode0State = MODE_0_MAIN;
         return false;
     case MODE_0_MAIN:
-        paletteFlow(leds_RGB1, blueWaveIndex_RGB1, NUM_RGB1, &lastUpdate_blueWave1, &blueWaveInit1, blue_wave_p, 1);
-        paletteFlow(leds_RGB2, blueWaveIndex_RGB2, NUM_RGB2, &lastUpdate_blueWave2, &blueWaveInit2, blue_wave_p, 1);
-        paletteFlow(leds_RGB3, blueWaveIndex_RGB3, NUM_RGB3, &lastUpdate_blueWave3, &blueWaveInit3, blue_wave_p, 1);
+        pwmBuffer[0][0] = 200; // 12 bit > 0-4095
+        // paletteFlow(leds_RGB1, blueWaveIndex_RGB1, NUM_RGB1, &lastUpdate_blueWave1, &blueWaveInit1, blue_wave_p, 1);
+        // paletteFlow(leds_RGB2, blueWaveIndex_RGB2, NUM_RGB2, &lastUpdate_blueWave2, &blueWaveInit2, blue_wave_p, 1);
+        // paletteFlow(leds_RGB3, blueWaveIndex_RGB3, NUM_RGB3, &lastUpdate_blueWave3, &blueWaveInit3, blue_wave_p, 1);
         return false;
     case MODE_0_END:
         rgbOff(leds_RGB1, NUM_RGB1);

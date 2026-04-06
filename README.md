@@ -23,10 +23,10 @@ monitor_port = /dev/cu.usbmodem11201 #用來監聽log的port
 ![Alt Text](./data/images/esp32c3.png)
 
 ## 前置要求
-此專案主要使用 FastLED 來控制 RGB 燈光。
+此專案主要使用 FastLED 來控制 RGB 燈光https。
 建議先學習 FastLED 的基礎知識。
 - 教學影片：
-  https://www.youtube.com/watch?v=4Ut4UK7612M&list=PLgXkGn3BBAGi5dTOCuEwrLuFtfz0kGFTC
+  ://www.youtube.com/watch?v=4Ut4UK7612M&list=PLgXkGn3BBAGi5dTOCuEwrLuFtfz0kGFTC
 - 文件：
   https://fastled.io/docs/
 

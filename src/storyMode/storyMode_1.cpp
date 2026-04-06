@@ -165,8 +165,7 @@ bool storyMode_1()
         mode1State = MODE_1_START;
         return false;
     case MODE_1_START:
-
-        if (millis() - startTime_mode1 >= 1800)
+        if (millis() - startTime_mode1 >= 1800) // 
         {
             maxBrightness = 50;
             maxBrightness_pwm = 800;
@@ -178,20 +177,21 @@ bool storyMode_1()
         return false;
     case MODE_1_CONTINUE:
 
-        pwmBuffer[0][0] = 100;
-        pwmBuffer[0][1] = 5;
-        pwmBuffer[0][2] = pwmVent(0, 1, 2, 20, 30, 60, 70, 3000, 150000);
-        pwmBuffer[0][3] = pwmBreath(30, 5, 100);
-        pwmBuffer[0][4] = pwmVent(1, 1, 2, 150, 200, 300, 350, 3000, 150000);
-        pwmBuffer[0][5] = pwmVent(2, 1, 2, 150, 200, 300, 350, 3000, 150000);
-        pwmBuffer[0][6] = pwmVent(3, 1, 2, 150, 200, 300, 350, 3000, 150000);
-        pwmBuffer[0][7] = pwmVent(4, 1, 2, 150, 200, 300, 350, 3000, 150000);
+        // pwmBuffer[0][0] = 100;
+        // pwmBuffer[0][1] = 5;
+        // pwmBuffer[0][2] = pwmVent(0, 1, 2, 20, 30, 60, 70, 3000, 150000);
+        // pwmBuffer[0][3] = pwmBreath(30, 5, 100);
+        // pwmBuffer[0][4] = pwmVent(1, 1, 2, 150, 200, 300, 350, 3000, 150000);
+        // pwmBuffer[0][5] = pwmVent(2, 1, 2, 150, 200, 300, 350, 3000, 150000);
+        // pwmBuffer[0][6] = pwmVent(3, 1, 2, 150, 200, 300, 350, 3000, 150000);
+        // pwmBuffer[0][7] = pwmVent(4, 1, 2, 150, 200, 300, 350, 3000, 150000);
 
-        turbine(leds_RGB2, NUM_RGB2, &turbineInstance1); // 4 turbine
-        turbine(leds_RGB3, NUM_RGB3, &turbineInstance1);
+        // turbine(leds_RGB2, NUM_RGB2, &turbineInstance1); // 4 turbine
+        // turbine(leds_RGB3, NUM_RGB3, &turbineInstance1);
 
         if (millis() - startTime_mode1 >= 150000)
         {
+            startTime_mode1 = millis();
             mode1State = MODE_1_CONTINUE;
         }
         return false;

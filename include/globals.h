@@ -9,13 +9,13 @@
 
 #define MAX_LEDS 180 // Or whatever your maximum LED count is
 
-#define NUM_RGB1 10
-#define NUM_RGB2 10
-#define NUM_RGB3 10
+#define NUM_RGB1 12
+#define NUM_RGB2 12
+#define NUM_RGB3 12
 
 //------------PWM I2C-------------//
-#define PIN_PWM_SDA 6
-#define PIN_PWM_SCL 5
+#define PIN_PWM_SDA 5
+#define PIN_PWM_SCL 6
 //-------------RGB----------------//
 #define PIN_RGB1 1
 #define PIN_RGB2 2
@@ -164,7 +164,16 @@ enum STATE_MODE_1
 enum STATE_MODE_DEMO
 {
     MODE_DEMO_INIT,
-    MODE_DEMO_MAIN,
+    MODE_DEMO_STAGE1,
+    MODE_DEMO_STAGE2,
+    MODE_DEMO_STAGE3,
+    MODE_DEMO_STAGE4,
+    MODE_DEMO_STAGE5,
+    MODE_DEMO_STAGE6,
+    MODE_DEMO_STAGE7,
+    MODE_DEMO_STAGE8,
+    MODE_DEMO_STAGE9,
+    MODE_DEMO_STAGE10,
     MODE_DEMO_END
 };
 

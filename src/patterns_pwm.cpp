@@ -132,6 +132,140 @@ bool pwmFadeOutAll(uint16_t pwmBuffer[][16], int fadeSpeed, uint16_t &currentBri
     return allOff;
 }
 
+//Q1 Example
+// for(int i = 0; i <=15; i++){
+//         if (random8() < 40){ // 0-39
+//             pwmBuffer[0][i] = 200;
+//             delay(10);
+//             pwmBuffer[0][i] = 0;
+//         }   
+//     }
+//     delay(100);
+
+// void pwmRandomFlash(uint8_t randomChance){
+//     static unsigned long ledOnTime[16] = {0};     // 亮燈計時器
+//     static unsigned long intervalTime[16] = {0};  // 間隔計時器
+    
+//     for(int i = 0; i <= 15; i++){
+//         // 計時器1：間隔時間（每 200ms 觸發一次）
+//         if(millis() - intervalTime[i] >= 200){ // delay(200)
+//             intervalTime[i] = millis() ;
+            
+//             if(random8() < randomChance){
+//                 ledOnTime[i] = millis();    // 記錄亮燈開始時間
+//                 pwmBuffer[0][i] = 200;      // 亮
+//             }
+//         }
+        
+//         // 計時器2：亮燈時間（亮 10ms 後熄滅）
+//         if(ledOnTime[i] != 0 && millis() - ledOnTime[i] >= 10){ // delay(10)
+//             pwmBuffer[0][i] = 0;            // 熄滅
+//             ledOnTime[i] = 0;               // 重置
+//         }
+//     }
+// }
+
+//Q1 
+void pwmRandomFlash(int pwmIndex, uint16_t brightnessHigh, fract8 chance,
+                    unsigned long& lastUpdate, int bpm) {
+    unsigned long currentMillis = millis();
+    int interval = 60000 / bpm;
+
+    if (currentMillis - lastUpdate < 100) {
+        return;  // Early exit if not time to update
+    }
+
+    lastUpdate = currentMillis; // timer = 0
+
+    // Single pass through all channels
+    for (uint8_t channel = 0; channel < 16; channel++) {
+        // First turn off the channel
+        pwmBuffer[pwmIndex][channel] = 0;
+
+        // Then randomly decide if it should flash
+        if (random8() < chance) {
+            pwmBuffer[pwmIndex][channel] = brightnessHigh;
+        }
+    }
+}
+
+
+//Q5
+void pwmRandomFlashFadeOut(int pwmIndex, uint16_t brightnessHigh, fract8 chance,
+                    unsigned long& lastUpdate, unsigned long fadeOutTime[16], unsigned long fadeTime, int bpm) {
+    unsigned long currentMillis = millis();
+    int interval = 60000 / bpm;
+    // Fade out logic
+    for (int channel = 0; channel < 16; channel++) {
+        if (fadeOutTime[channel] != 0) {
+            unsigned long elapsed = currentMillis - fadeOutTime[channel];
+            
+            if (elapsed >= fadeTime) {
+                // 時間到了，完全熄滅
+                pwmBuffer[pwmIndex][channel] = 0;
+                fadeOutTime[channel] = 0;
+            } else {
+                // 亮度 = 原本亮度 × (剩下時間 / 總時間)
+                uint16_t brightness = brightnessHigh * (fadeTime - elapsed) / fadeTime;
+                pwmBuffer[pwmIndex][channel] = brightness;
+            }
+        }
+    }
+
+    if (currentMillis - lastUpdate < 100) {
+        return;  // Early exit if not time to update
+    }
+
+    lastUpdate = currentMillis; // timer = 0
+
+    // Single pass through all channels
+    for (uint8_t channel = 0; channel < 16; channel++) {
+        // Then randomly decide if it should flash
+        if (fadeOutTime[channel] == 0 && random8() < chance) {
+            pwmBuffer[pwmIndex][channel] = brightnessHigh;
+            fadeOutTime[channel] = currentMillis;
+        }
+    }
+}
+
+//Q5 example
+// void pwmRandomFlashFadeOut(int pwmIndex, uint16_t brightnessHigh, fract8 chance,
+//                     unsigned long& lastUpdate, int bpm) {
+//     static unsigned long flashStartTime[16] = {0};  // 開始閃爍的時間
+    
+//     unsigned long currentMillis = millis();
+//     int interval = 60000 / bpm;
+//     int fadeTime = 300;  // 漸暗總時間（毫秒）
+    
+//     // 處理正在閃爍的 LED
+//     for (int channel = 0; channel < 16; channel++) {
+//         if (flashStartTime[channel] != 0) {
+//             unsigned long elapsed = currentMillis - flashStartTime[channel];
+            
+//             if (elapsed >= fadeTime) {
+//                 // 時間到了，完全熄滅
+//                 pwmBuffer[pwmIndex][channel] = 0;
+//                 flashStartTime[channel] = 0;
+//             } else {
+//                 // 亮度 = 原本亮度 × (剩下時間 / 總時間)
+//                 uint16_t brightness = brightnessHigh * (fadeTime - elapsed) / fadeTime;
+//                 pwmBuffer[pwmIndex][channel] = brightness;
+//             }
+//         }
+//     }
+    
+//     // 觸發新閃爍
+//     if (currentMillis - lastUpdate < 100) return;
+//     lastUpdate = currentMillis;
+    
+//     for (int channel = 0; channel < 16; channel++) {
+//         if (flashStartTime[channel] == 0 && random8() < chance) {
+//             flashStartTime[channel] = currentMillis;
+//             pwmBuffer[pwmIndex][channel] = brightnessHigh;
+//         }
+//     }
+// }
+
 uint16_t pwmFadeIn(unsigned long &currentTime, int fadeSpeed, uint16_t brightnessHigh, uint16_t &currentBrightness, unsigned long &lastUpdate)
 {
     if (currentBrightness < brightnessHigh)

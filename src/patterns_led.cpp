@@ -14,6 +14,7 @@ void led_OFF(int pin) // 單色燈熄滅
     analogWrite(pin, 0);
 }
 
+// & -> references, modify the values  
 bool led_fadeIn(int pin, int fadeSpeed, uint8_t brightnessHigh, uint8_t &currentBrightness, unsigned long &lastUpdate)
 {
     unsigned long currentmillis = millis();
@@ -25,10 +26,10 @@ bool led_fadeIn(int pin, int fadeSpeed, uint8_t brightnessHigh, uint8_t &current
             lastUpdate = currentmillis;
             analogWrite(pin, currentBrightness);
         }
-        return true;
+        return false;
     }
     analogWrite(pin, brightnessHigh);
-    return false;
+    return true;
 }
 
 //fadeout -> keep

@@ -20,7 +20,10 @@ uint16_t pwmVent(int patternNum, uint16_t MIN_FREQ, uint16_t MAX_FREQ, uint16_t 
 //Valcan gun
 uint16_t pwmValcanGun(uint16_t brightness, int speed, uint8_t &flashCount, bool &isOn, unsigned long &lastUpdate, int pauseTime, int flashTime);
 uint16_t pwm_led_flash_stop(uint16_t brightness, int flashSpeed, int stopSecond, int flashCcount, unsigned long &lastUpdate);
-
+void pwmRandomFlash(int pwmIndex, uint16_t brightnessHigh, fract8 chance, unsigned long& lastUpdate, int bpm);
+void pwmRandomFlashFadeOut(int pwmIndex, uint16_t brightnessHigh, fract8 chance,
+                    unsigned long& lastUpdate, unsigned long fadeOutTime[16], 
+                    unsigned long fadeTime, int bpm);
 uint16_t pwmOff();
 uint16_t pwmOn(uint16_t brightness);
 void pwmOnAll(uint16_t pwmBuffer[][16], uint16_t brightness);

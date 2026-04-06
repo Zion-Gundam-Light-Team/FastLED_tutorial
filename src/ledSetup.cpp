@@ -8,13 +8,13 @@
 void initLED()
 {
     //-------------s3 GPIOs-------------//
-    pinMode(PIN_LED_5, OUTPUT);
-    pinMode(PIN_LED_6, OUTPUT);
-    pinMode(PIN_LED_7, OUTPUT);
-    pinMode(PIN_LED_8, OUTPUT);
-    pinMode(PIN_LED_9, OUTPUT);
-    pinMode(PIN_LED_10, OUTPUT);
-    pinMode(PIN_LED_11, OUTPUT);
+    // pinMode(PIN_LED_5, OUTPUT);
+    // pinMode(PIN_LED_6, OUTPUT);
+    // pinMode(PIN_LED_7, OUTPUT);
+    // pinMode(PIN_LED_8, OUTPUT);
+    // pinMode(PIN_LED_9, OUTPUT);
+    // pinMode(PIN_LED_10, OUTPUT);
+    // pinMode(PIN_LED_11, OUTPUT);
 
     // pinMode(PIN_LED_16, OUTPUT);
     // pinMode(PIN_LED_14, OUTPUT);
@@ -38,9 +38,9 @@ void initFastLED()
 
 void runPattern()
 {
-    // runStoryModeDemo();
+    runStoryModeDemo();
     // runStoryModeAll();
-    runStoryModeSingle();
+    // runStoryModeSingle();
 }
 
 void resetPattern()
