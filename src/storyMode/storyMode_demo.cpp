@@ -207,7 +207,7 @@ bool storyMode_demo() {
     switch (modeDemoState) {
         case MODE_DEMO_INIT:
             rgbOff(leds_RGB1, NUM_RGB1);
-            pwmOffAll(pwmBuffer);
+            pwmOffAll();
             startTime_modeDemo = millis();
             lastUpdate_blueWave1 = millis();
             lastUpdate_blueWave2 = millis();
@@ -218,8 +218,8 @@ bool storyMode_demo() {
             // gradientRainbowSwipe(leds_RGB1, NUM_RGB1, &startHue_rainbow1, 1,
             // false, 150000);
             axe(leds_RGB1, NUM_RGB1, &axeInstance1);  // 3 *(2020 strips)
-            pwmBuffer[0][0] = pwmOn(500);
-            pwmBuffer[0][1] = pwmOn(500);
+            pwmOn(0, 0, 500);
+            pwmOn(0, 1, 500);
             // swipeDynamicRainbow(leds_RGB1,&currentIndexSwipe,NUM_RGB1,&SwipeHue,2);
             // paletteFlow(leds_RGB1, blueWaveIndex_RGB1, NUM_RGB1,
             // &lastUpdate_blueWave1, &blueWaveInit1, blue_wave_p,1);
@@ -234,7 +234,7 @@ bool storyMode_demo() {
             return false;
         case MODE_DEMO_END:
             rgbOff(leds_RGB1, NUM_RGB1);
-            pwmOffAll(pwmBuffer);
+            pwmOffAll();
             return millis() - startTime_modeDemo >= 10000;
         default:
             return false;

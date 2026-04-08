@@ -14,5 +14,6 @@ void setup() {
 
 void loop() {
     runPattern();
+    updatePwmStaging(ACTUAL_NUM_PWM);
     dispatchPwm();
 }

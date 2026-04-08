@@ -2,7 +2,6 @@
 
 #include <Wire.h>
 
-#include "../include/config.h"
 #include "../include/globals.h"
 #include "Custom_PWMServoDriver.h"
 #include "storyMode/storyModes.h"

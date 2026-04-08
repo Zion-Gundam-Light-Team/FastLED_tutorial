@@ -154,7 +154,7 @@ bool storyMode_1()
         rgbOff(leds_RGB1, NUM_RGB1);
         rgbOff(leds_RGB2, NUM_RGB2);
         rgbOff(leds_RGB3, NUM_RGB3);
-        pwmOffAll(pwmBuffer);
+        pwmOffAll();
         flashIdleInterval = 1000;
         currentBrightness = 0;
         currentBrightness_pwm = 0;
@@ -178,14 +178,14 @@ bool storyMode_1()
         return false;
     case MODE_1_CONTINUE:
 
-        pwmBuffer[0][0] = 100;
-        pwmBuffer[0][1] = 5;
-        pwmBuffer[0][2] = pwmVent(0, 1, 2, 20, 30, 60, 70, 3000, 150000);
-        pwmBuffer[0][3] = pwmBreath(30, 5, 100);
-        pwmBuffer[0][4] = pwmVent(1, 1, 2, 150, 200, 300, 350, 3000, 150000);
-        pwmBuffer[0][5] = pwmVent(2, 1, 2, 150, 200, 300, 350, 3000, 150000);
-        pwmBuffer[0][6] = pwmVent(3, 1, 2, 150, 200, 300, 350, 3000, 150000);
-        pwmBuffer[0][7] = pwmVent(4, 1, 2, 150, 200, 300, 350, 3000, 150000);
+        pwmOn(0, 0, 100);
+        pwmOn(0, 1, 5);
+        pwmVent(0, 2, 0, 1, 2, 20, 30, 60, 70, 3000, 150000);
+        pwmBreath(0, 3, 30, 5, 100);
+        pwmVent(0, 4, 1, 1, 2, 150, 200, 300, 350, 3000, 150000);
+        pwmVent(0, 5, 2, 1, 2, 150, 200, 300, 350, 3000, 150000);
+        pwmVent(0, 6, 3, 1, 2, 150, 200, 300, 350, 3000, 150000);
+        pwmVent(0, 7, 4, 1, 2, 150, 200, 300, 350, 3000, 150000);
 
         turbine(leds_RGB2, NUM_RGB2, &turbineInstance1); // 4 turbine
         turbine(leds_RGB3, NUM_RGB3, &turbineInstance1);
@@ -197,7 +197,7 @@ bool storyMode_1()
         return false;
 
     case MODE_1_FADEOUT:
-        pwmFadeOutAll(pwmBuffer, flashingSpeed, currentBrightness_pwm);
+        pwmFadeOutAll(flashingSpeed, currentBrightness_pwm);
 
         rgb_fadeOut(leds_RGB1, NUM_RGB1, flashingSpeed);
         rgb_fadeOut(leds_RGB2, NUM_RGB2, flashingSpeed);
@@ -207,7 +207,7 @@ bool storyMode_1()
         rgbOff(leds_RGB1, NUM_RGB1);
         rgbOff(leds_RGB2, NUM_RGB2);
         rgbOff(leds_RGB3, NUM_RGB3);
-        pwmOffAll(pwmBuffer);
+        pwmOffAll();
         return true;
         // return millis() - startTime_mode1 >= 10000;
     default:

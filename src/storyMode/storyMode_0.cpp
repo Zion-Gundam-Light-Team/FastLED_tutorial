@@ -119,7 +119,7 @@ bool storyMode_0()
     {
     case MODE_0_INIT:
         rgbOff(leds_RGB1, NUM_RGB1);
-        pwmOffAll(pwmBuffer);
+        pwmOffAll();
         startTime_mode1 = millis();
         lastUpdate_blueWave1 = millis();
         lastUpdate_blueWave2 = millis();
@@ -133,7 +133,7 @@ bool storyMode_0()
         return false;
     case MODE_0_END:
         rgbOff(leds_RGB1, NUM_RGB1);
-        pwmOffAll(pwmBuffer);
+        pwmOffAll();
         return millis() - startTime_mode1 >= 10000;
     default:
         return false;
