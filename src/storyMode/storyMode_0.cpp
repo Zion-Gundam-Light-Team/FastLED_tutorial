@@ -28,11 +28,11 @@ static unsigned long flashIdleInterval = 1000;
 
 static uint16_t minBrightness_pwm = 80;
 static uint16_t maxBrightness_pwm = 160;
-static uint16_t currentBrightness_pwm = 0;
+
 
 static uint8_t minBrightness = 5;
 static uint8_t maxBrightness = 10;
-static uint8_t currentBrightness = 0;
+static uint8_t currentBrightness = 0; // sttaic -> only once
 
 static uint8_t maxBrightness_eye = 255;
 static uint8_t currentBrightness_eye = 0;
@@ -54,6 +54,7 @@ static unsigned long lastUpdate_pwm5 = 0;
 
 static bool isOnArr_pwm[ACTUAL_NUM_PWM][16] = {false};
 static unsigned long lastUpdate_pwm[ACTUAL_NUM_PWM][16] = {0};
+static uint16_t currentBrightness_pwm[ACTUAL_NUM_PWM][16] = {0};
 
 static bool isOnArr_pwm0[16] = {false};
 static bool isOnArr_pwm1[16] = {false};
@@ -106,12 +107,31 @@ static bool inGap17 = false;
 static bool inGap18 = false;
 
 //-------走馬單色燈params------//
-int ledPins[] = {14, 15, 16, 17, 18};
-int numPins = 5;
+static int ledPins[] = {14, 15, 16, 17, 18};
+static int numPins = 5;
 int freq = 20;
 uint8_t brightnessLow = 1;
 uint8_t brightnessHigh = 50;
 unsigned long lastUpdate = 0;
+
+//Rainbow
+static uint8_t startHue_rainbow1 = 0;
+static uint8_t startHue_rainbow2 = 0;
+static uint8_t startHue_rainbow3 = 0;
+
+static uint8_t colorIndex1 = 0;
+static uint8_t colorIndex2 = 0;
+static uint8_t colorIndex3 = 0;
+static unsigned long rgbBreathLastUpdate1 = 0;
+static unsigned long rgbBreathLastUpdate2 = 0;
+static unsigned long rgbBreathLastUpdate3 = 0;
+
+static uint8_t lastPos1 = 255;
+static uint8_t lastPos2 = 255;
+static uint8_t lastPos3 = 255;
+static bool reachedEnd1 = false;
+static bool reachedEnd2 = false;
+static bool reachedEnd3 = false;
 
 bool storyMode_0()
 {
@@ -119,22 +139,107 @@ bool storyMode_0()
     {
     case MODE_0_INIT:
         rgbOff(leds_RGB1, NUM_RGB1);
+        rgbOff(leds_RGB2, NUM_RGB2);
+        rgbOff(leds_RGB3, NUM_RGB3);
         pwmOffAll();
-        startTime_mode1 = millis();
-        lastUpdate_blueWave1 = millis();
-        lastUpdate_blueWave2 = millis();
-        lastUpdate_blueWave3 = millis();
-        mode0State = MODE_0_MAIN;
+        lastPos1 = 255;
+        lastPos2 = 255;
+        lastPos3 = 255;
+        reachedEnd1 = false;
+        reachedEnd2 = false;
+        reachedEnd3 = false;
+        startTime_mode0 = millis();
+        mode0State = MODE_0_STAGE_1;
         return false;
-    case MODE_0_MAIN:
-        paletteFlow(leds_RGB1, blueWaveIndex_RGB1, NUM_RGB1, &lastUpdate_blueWave1, &blueWaveInit1, blue_wave_p, 1);
-        paletteFlow(leds_RGB2, blueWaveIndex_RGB2, NUM_RGB2, &lastUpdate_blueWave2, &blueWaveInit2, blue_wave_p, 1);
-        paletteFlow(leds_RGB3, blueWaveIndex_RGB3, NUM_RGB3, &lastUpdate_blueWave3, &blueWaveInit3, blue_wave_p, 1);
+        
+    case MODE_0_STAGE_1:
+        if (led_fadeIn(12, 8, 255, currentBrightness, lastUpdate))
+        {
+            startTime_mode0 = millis();
+            mode0State = MODE_0_STAGE_2;
+        }
         return false;
-    case MODE_0_END:
-        rgbOff(leds_RGB1, NUM_RGB1);
+
+    case MODE_0_STAGE_2:
+        pwmRandomFlashFadeAll(200, 0, 200, 100, isOnArr_pwm,
+                              lastUpdate_pwm, currentBrightness_pwm, 50);
+        gradientDynamicRainbow(leds_RGB1, NUM_RGB1, &startHue_rainbow1, 1);
+        gradientDynamicRainbow(leds_RGB2, NUM_RGB2, &startHue_rainbow2, 1);
+        gradientDynamicRainbow(leds_RGB3, NUM_RGB3, &startHue_rainbow3, 1);
+        
+        if (millis() - startTime_mode0 >= 4000)
+        {
+            startTime_mode0 = millis();
+            mode0State = MODE_0_STAGE_3;
+        }
+        return false;
+
+    case MODE_0_STAGE_3:
+        rgb_breath(leds_RGB1, NUM_RGB1, &colorIndex1, CRGB::Tomato,
+                   8000, 20, &rgbBreathLastUpdate1, 10);
+        rgb_breath(leds_RGB2, NUM_RGB2, &colorIndex2, CRGB::Tomato,
+                   8000, 20, &rgbBreathLastUpdate2, 10);
+        rgb_breath(leds_RGB3, NUM_RGB3, &colorIndex3, CRGB::Tomato,
+                   8000, 20, &rgbBreathLastUpdate3, 10);
+        pwmBreathAll(15, 0, 200);
+
+        if (millis() - startTime_mode0 >= 4000)
+        {
+            lastPos1 = 255;
+            lastPos2 = 255;
+            lastPos3 = 255;
+            reachedEnd1 = false;
+            reachedEnd2 = false;
+            reachedEnd3 = false;
+            startTime_mode0 = millis();
+            mode0State = MODE_0_STAGE_4;
+        }
+        return false;
+
+    case MODE_0_STAGE_4:
         pwmOffAll();
-        return millis() - startTime_mode1 >= 10000;
+        if (comet(leds_RGB1, NUM_RGB1, CRGB::Tomato, 100, 2,
+                  0, &lastPos1, &reachedEnd1, false))
+        {
+            startTime_mode0 = millis();
+            mode0State = MODE_0_STAGE_5;
+        }
+        return false;
+        
+    case MODE_0_STAGE_5:
+        comet(leds_RGB1, NUM_RGB1, CRGB::Tomato, 100, 2,
+                  0, &lastPos1, &reachedEnd1, false);
+        if (comet(leds_RGB2, NUM_RGB2, CRGB::Tomato, 100, 2,
+                  0, &lastPos2, &reachedEnd2, false))
+        {
+            startTime_mode0 = millis();
+            mode0State = MODE_0_STAGE_6;
+        }
+        return false;
+        
+    case MODE_0_STAGE_6:
+        comet(leds_RGB2, NUM_RGB2, CRGB::Tomato, 100, 2,
+                  0, &lastPos2, &reachedEnd2, false);
+        if (comet(leds_RGB3, NUM_RGB3, CRGB::Tomato, 100, 2,
+                  0, &lastPos3, &reachedEnd3, false))
+        {
+            startTime_mode0 = millis();
+            mode0State = MODE_0_STAGE_7;
+        }
+        return false;
+
+    case MODE_0_STAGE_7:
+        comet(leds_RGB3, NUM_RGB3, CRGB::Tomato, 100, 2,
+                  0, &lastPos3, &reachedEnd3, false);
+        // FIXED: No comet call here, just wait
+        if (millis() - startTime_mode0 >= 2000)
+        {
+            startTime_mode0 = millis();
+            mode0State = MODE_0_INIT;
+            return true;
+        }
+        return false;
+
     default:
         return false;
     }

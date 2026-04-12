@@ -36,8 +36,8 @@ void initFastLED() {
 }
 
 void runPattern() {
-    runStoryModeDemo();
-    // runStoryModeAll();
+    //runStoryModeDemo();
+    runStoryModeAll();
     // runStoryModeSingle();
 }
 

@@ -9,9 +9,9 @@
 
 #define MAX_LEDS 180  // Or whatever your maximum LED count is
 
-#define NUM_RGB1 10
-#define NUM_RGB2 10
-#define NUM_RGB3 10
+#define NUM_RGB1 16
+#define NUM_RGB2 16
+#define NUM_RGB3 16
 
 //------------PWM I2C-------------//
 #define PIN_PWM_SDA 5
@@ -124,7 +124,7 @@ enum STATE_VENT { VENT_INIT, VENT_MAIN, VENT_FADE_OUT };
 
 enum STATE_CYBER { CYBER_INIT, CYBER_MAIN, CYBER_FADE_OUT };
 
-enum STATE_MODE_0 { MODE_0_INIT, MODE_0_MAIN, MODE_0_END };
+enum STATE_MODE_0 { MODE_0_INIT, MODE_0_STAGE_1, MODE_0_STAGE_2, MODE_0_STAGE_3, MODE_0_STAGE_4, MODE_0_STAGE_5, MODE_0_STAGE_6, MODE_0_STAGE_7, MODE_0_STAGE_8, MODE_0_STAGE_9, MODE_0_END};
 
 enum STATE_MODE_1 {
     MODE_1_INIT,

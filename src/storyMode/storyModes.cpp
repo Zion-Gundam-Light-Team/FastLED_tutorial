@@ -40,6 +40,6 @@ void resetModeState()
 
 StoryModeAndNameList storyModes = {
     {storyMode_0, "正常模式", "-"},
-    {storyMode_1, "正常模式", "-"}
+    //{storyMode_1, "正常模式", "-"}
 };
 uint8_t storyModeCount = sizeof(storyModes) / sizeof(storyModes[0]);
