@@ -22,7 +22,16 @@ void setup()
   LOG_INFO("Slave setup starting...");
   
   // Properly initialize watchdog before PWM task uses it
+#if ESP_IDF_VERSION_MAJOR >= 5
+  esp_task_wdt_config_t wdt_config = {
+      .timeout_ms    = 60000,
+      .idle_core_mask = 0,
+      .trigger_panic = true,
+  };
+  esp_task_wdt_init(&wdt_config);
+#else
   esp_task_wdt_init(60, true);  // 60-second timeout
+#endif
   esp_task_wdt_add(NULL);       // Add main task to watchdog
   LOG_INFO("Watchdog initialized...");
   

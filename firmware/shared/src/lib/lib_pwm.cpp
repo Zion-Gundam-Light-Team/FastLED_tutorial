@@ -8,6 +8,7 @@
 #include "../../include/pwmTask.h"
 
 uint16_t pwmBuffer[MAX_NUM_PWM][16] = {0};
+uint16_t pwmStaging[MAX_NUM_PWM][16] = {0};
 
 void pwmOnAll(uint16_t pwmBuffer[][16], uint16_t brightness)
 {

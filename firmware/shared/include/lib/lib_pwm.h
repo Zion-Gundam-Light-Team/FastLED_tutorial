@@ -9,6 +9,7 @@
 #include "../pwmConfig.h"
 
 extern uint16_t pwmBuffer[MAX_NUM_PWM][16];
+extern uint16_t pwmStaging[MAX_NUM_PWM][16];
 
 uint16_t pwmOff();
 uint16_t pwmOn(uint16_t brightness);

@@ -271,7 +271,8 @@ bool storyMode_1(uint8_t slaveId)
             PWM_UPDATE_SAFE({
                 for (int i = 12; i < 16; i++)
                 {
-                    pwmBuffer[PWM1][i] = pwmVent(1, 2, 3, 950, 1200, 1300, 1350, 150000, 50000); //vent
+                    pwmVent(PWM1, i, 1, 2, 3, 950, 1200, 1300, 1350, 150000, 50000); //vent
+                    pwmBuffer[PWM1][i] = pwmStaging[PWM1][i];
                 }
             });
 
@@ -306,7 +307,8 @@ bool storyMode_1(uint8_t slaveId)
 
             // 0x52 16 散氣
             PWM_UPDATE_SAFE({
-                pwmBuffer[PWM2][15] = pwmVent(1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
+                pwmVent(PWM2, 15, 1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
+                pwmBuffer[PWM2][15] = pwmStaging[PWM2][15];
             });
 
             //0x59 1-12 長著
@@ -345,7 +347,8 @@ bool storyMode_1(uint8_t slaveId)
             PWM_UPDATE_SAFE({
                 for (int i = 12; i < 16; i++)
                 {
-                    pwmBuffer[PWM4][i] = pwmVent(1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
+                    pwmVent(PWM4, i, 1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
+                    pwmBuffer[PWM4][i] = pwmStaging[PWM4][i];
                 }
             });
 
@@ -380,7 +383,8 @@ bool storyMode_1(uint8_t slaveId)
 
             // 0x61 16 散氣
             PWM_UPDATE_SAFE({
-                pwmBuffer[PWM5][15] = pwmVent(1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
+                pwmVent(PWM5, 15, 1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
+                pwmBuffer[PWM5][15] = pwmStaging[PWM5][15];
             });
 
             // 0x6B 1-4 長著
@@ -398,7 +402,8 @@ bool storyMode_1(uint8_t slaveId)
             PWM_UPDATE_SAFE({
                 for (int i = 5; i <=12; i++)
                 {
-                    pwmBuffer[PWM6][i] = pwmVent(1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
+                    pwmVent(PWM6, i, 1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
+                    pwmBuffer[PWM6][i] = pwmStaging[PWM6][i];
                 }
             });
 
@@ -445,7 +450,8 @@ bool storyMode_1(uint8_t slaveId)
             PWM_UPDATE_SAFE({
                 for (int i = 0; i <=10; i++)
                 {
-                    pwmBuffer[PWM2][i] = pwmVent(1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
+                    pwmVent(PWM2, i, 1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
+                    pwmBuffer[PWM2][i] = pwmStaging[PWM2][i];
                 }
             });
 
@@ -500,7 +506,8 @@ bool storyMode_1(uint8_t slaveId)
             PWM_UPDATE_SAFE({
                 for (int i = 0; i <=10; i++)
                 {
-                    pwmBuffer[PWM5][i] = pwmVent(1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
+                    pwmVent(PWM5, i, 1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
+                    pwmBuffer[PWM5][i] = pwmStaging[PWM5][i];
                 }
             });
 
