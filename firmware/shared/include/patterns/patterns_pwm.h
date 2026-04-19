@@ -1,47 +1,39 @@
 #ifndef PATTERNS_PWM_H
 #define PATTERNS_PWM_H
 
-#include <Arduino.h>
 #include <FastLED.h>
-
+#include <Arduino.h>
+#include <Adafruit_PWMServoDriver.h>
 #include "Custom_PWMServoDriver.h"
 #include "../globals.h"
-#include "../lib/lib_pwm.h"
+#include "../pwmConfig.h"
 
-void randomizeParameters(uint16_t MIN_FREQ, uint16_t MAX_FREQ,
-                         uint16_t lowerBoundOfMin, uint16_t upperBoundOfMin,
-                         uint16_t lowerBoundOfMax, uint16_t upperBoundOfMax);
-void whiteFadeInOut(int pwmIndex, int channel, uint16_t brightness,
-                    unsigned long &lastUpdate, uint16_t &currentBrightness,
-                    uint8_t &fadeState);
-void pwmRandomFlashAll(int bpm, uint16_t minBrightness, uint16_t maxBrightness,
-                       bool isOnArr[][16], unsigned long lastUpdateArr[][16],
-                       uint8_t randomChance);
-void pwmRandomFlashFadeAll(int bpm, uint16_t minBrightness, uint16_t maxBrightness,
-                           uint8_t fadeSpeed, bool isOnArr[][16],
-                           unsigned long lastUpdateArr[][16],
-                           uint16_t currentBrightness[][16],
-                           uint8_t randomChance);
-void pwmVent(int pwmIndex, int channel, int patternNum,
-             uint16_t MIN_FREQ, uint16_t MAX_FREQ,
-             uint16_t lowerBoundOfMin, uint16_t upperBoundOfMin,
-             uint16_t lowerBoundOfMax, uint16_t upperBoundOfMax,
-             int intervals, unsigned long duration);
-void pwmValcanGun(int pwmIndex, int channel, uint16_t brightness, int speed,
-                  uint8_t &flashCount, bool &isOn, unsigned long &lastUpdate,
-                  int pauseTime, int flashTime);
-void pwmfadeOut1(int pwmIndex, int channel, int fadeSpeed,
-                 uint16_t brightnessHigh, uint16_t brightnessLow,
-                 int stopSecond, unsigned long &lastUpdateArr_pwm);
-void pwmBreathFlash1(int pwmIndex, int channel, int freq,
-                     uint16_t brightnessLow, uint16_t brightnessHigh,
-                     int breathFlashSecond, int breathFlashCount,
-                     int countInterval, bool &startRun, int stopSecond,
-                     bool &isOn);
-void pwmProgressiveFlash(int pwmIndex, int channel, uint16_t brightnessHigh,
-                         uint16_t brightnessLow, int totalDuration, int stopSecond);
-void pwmFlashKeep(int pwmIndex, int channel, uint16_t brightness,
-                  float flashCount, int flashDurationMs, int keepOnMillis,
-                  unsigned long &lastUpdate);
+typedef struct {
+    bool pwmChannel_0;
+    bool pwmChannel_1;
+    bool pwmChannel_2;
+    bool pwmChannel_3;
+    bool pwmChannel_4;
+    bool pwmChannel_5;
+    bool pwmChannel_6;
+    bool pwmChannel_7;
+    bool pwmChannel_8;
+    bool pwmChannel_9;
+    bool pwmChannel_10;
+    bool pwmChannel_11;
+    bool pwmChannel_12;
+    bool pwmChannel_13;
+    bool pwmChannel_14;
+    bool pwmChannel_15;
+} RandomFlashInstance;
+
+void pwmRandomFlash(int pwmIndex, uint16_t brightnessHigh,
+                   fract8 chance, unsigned long &lastUpdate,
+                   int bpm, RandomFlashInstance *instance);
+
+void pwmSelectedOn(int pwmIndex, uint16_t brightnessHigh, RandomFlashInstance *instance);
+
+void smoothBeatsin16(int pwmIndex, int channel, unsigned long period, uint16_t min_val, uint16_t max_val, uint16_t phase_offset,
+                     unsigned long stopBefore, unsigned long stopAfter);
 
 #endif

@@ -32,11 +32,8 @@ bool storyMode_dev()
     switch (modeDevState)
     {
     case MODE_DEV_START:
-        pwmOnAll(pwmBuffer, 255);
-        gradientDynamicPalette(leds_RGB1, NUM_LEDS_RGB1, &paletteIndex1, 2, devModePalette);
-        gradientDynamicPalette(leds_RGB2, NUM_LEDS_RGB2, &paletteIndex2, 2, devModePalette);
-        gradientDynamicPalette(leds_RGB3, NUM_LEDS_RGB3, &paletteIndex3, 2, devModePalette);
-        gradientDynamicPalette(leds_RGB4, NUM_LEDS_RGB4, &paletteIndex4, 2, devModePalette);
+        pwmOnAll(255);
+        gradientDynamicPalette(leds_RGB0, NUM_LEDS_RGB0, &paletteIndex1, 2, devModePalette);
         return false;
     default:
         return false;

@@ -9,6 +9,7 @@
 #include "../../include/storymode/storyMode_3.h"
 #include "../../include/storymode/storyMode_dev.h"
 #include "../../include/storymode/storyMode_demo.h"
+#include "../../include/lib/lib_pwm.h"
 
 void runStoryModeAll(uint8_t slaveId)
 {
@@ -28,27 +29,32 @@ void runStoryModeAll(uint8_t slaveId)
         return;
     }
     
+    memset(pwmStaging, 0, sizeof(pwmStaging));
     if (storyModes[currentModeId].story(slaveId) == true)
     {
         runStoryCompleted = true;
         enableRunStory = false;
         LOG_STORY("Story mode %d completed, waiting for master", currentModeId);
     }
-    
+    updatePwmStaging(ACTUAL_NUM_PWM);
     FastLED.show();
     delay(1000 / RGB_FREQUENCY);
 }
 
 void runStoryModeDev()
 {
+    memset(pwmStaging, 0, sizeof(pwmStaging));
     storyMode_dev();
+    updatePwmStaging(ACTUAL_NUM_PWM);
     FastLED.show();
     delay(1000 / RGB_FREQUENCY);
 }
 
 void runStoryModeDemo()
 {
+    memset(pwmStaging, 0, sizeof(pwmStaging));
     storyMode_demo();
+    updatePwmStaging(ACTUAL_NUM_PWM);
     FastLED.show();
     delay(1000 / RGB_FREQUENCY);
 }
@@ -70,12 +76,13 @@ void runStoryModeSingle(uint8_t slaveId)
         return;
     }
     
+    memset(pwmStaging, 0, sizeof(pwmStaging));
     if (storyModes[currentModeId].story(slaveId) == true)
     {
         runStoryCompleted = true;
         enableRunStory = false;
     }
-    
+    updatePwmStaging(ACTUAL_NUM_PWM);
     FastLED.show();
     delay(1000 / RGB_FREQUENCY);
 }

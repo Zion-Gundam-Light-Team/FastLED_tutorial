@@ -110,10 +110,6 @@ void initLED()
 void initFastLED()
 {
     FastLED.addLeds<LED_TYPE, LED_PIN_RGB0, COLOR_ORDER>(leds_RGB0, NUM_LEDS_RGB0).setCorrection(TypicalLEDStrip);
-    FastLED.addLeds<LED_TYPE, LED_PIN_RGB1, COLOR_ORDER>(leds_RGB1, NUM_LEDS_RGB1).setCorrection(TypicalLEDStrip);
-    FastLED.addLeds<LED_TYPE, LED_PIN_RGB2, COLOR_ORDER>(leds_RGB2, NUM_LEDS_RGB2).setCorrection(TypicalLEDStrip);
-    FastLED.addLeds<LED_TYPE, LED_PIN_RGB3, COLOR_ORDER>(leds_RGB3, NUM_LEDS_RGB3).setCorrection(TypicalLEDStrip);
-    FastLED.addLeds<LED_TYPE, LED_PIN_RGB4, COLOR_ORDER>(leds_RGB4, NUM_LEDS_RGB4).setCorrection(TypicalLEDStrip);
     FastLED.setDither(true);
 }
 
@@ -121,8 +117,8 @@ void runPattern()
 {
     //================================
     // 如果你想試storymode demo，請取消註解以下2行
-    // runStoryModeDemo();
-    // return;
+    runStoryModeDemo();
+    return;
     //===============================
 
 #ifdef IS_SLAVE

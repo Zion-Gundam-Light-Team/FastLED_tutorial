@@ -98,11 +98,8 @@ bool storyMode_3(uint8_t slaveId)
     {
     case MODE_3_INIT:
         startTime_mode3 = millis();
-        rgbOff(leds_RGB1, NUM_LEDS_RGB1);
-        rgbOff(leds_RGB2, NUM_LEDS_RGB2);
-        rgbOff(leds_RGB3, NUM_LEDS_RGB3);
-        rgbOff(leds_RGB4, NUM_LEDS_RGB4);
-        pwmOffAll(pwmBuffer);
+        rgbOff(leds_RGB0, NUM_LEDS_RGB0);
+        pwmOffAll();
         led_OFF(LED_PIN_16);
         currentIndex_breath1 = 0;
         currentIndex_breath2 = 0;
@@ -148,11 +145,8 @@ bool storyMode_3(uint8_t slaveId)
         if (slaveId == 1)
             led_ON(LED_PIN_16, maxBrightness_eye);
         
-        pwmBreathAll(pwmBuffer, 10, 100, 255);
-        rgb_breath(leds_RGB1, NUM_LEDS_RGB1, &currentIndex_breath1, CRGB(255, 52, 0), 80000, 20, &swipeonLastUpdate1, breathDelay);
-        rgb_breath(leds_RGB2, NUM_LEDS_RGB2, &currentIndex_breath2, CRGB(255, 52, 0), 80000, 20, &swipeonLastUpdate2, breathDelay);
-        rgb_breath(leds_RGB3, NUM_LEDS_RGB3, &currentIndex_breath3, CRGB(255, 52, 0), 80000, 20, &swipeonLastUpdate3, breathDelay);
-        if (rgb_breath(leds_RGB4, NUM_LEDS_RGB4, &currentIndex_breath4, CRGB(255, 52, 0), 80000, 20, &swipeonLastUpdate4, breathDelay))
+        pwmBreathAll(10, 100, 255);
+        if (rgb_breath(leds_RGB0, NUM_LEDS_RGB0, &currentIndex_breath1, CRGB(255, 52, 0), 80000, 20, &swipeonLastUpdate1, breathDelay))
         {
             maxBrightness = 150;
             maxBrightness_pwm = 2400;
@@ -163,23 +157,17 @@ bool storyMode_3(uint8_t slaveId)
         }
         return false;
     case MODE_3_FADEOUT:
-        pwmFadeOutAll(pwmBuffer, flashingSpeed, currentBrightness_pwm);
+        pwmFadeOutAll(flashingSpeed, currentBrightness_pwm);
         led_fadeOut(LED_PIN_16, flashingSpeed, currentBrightness_eye);
-        rgb_fadeOut(leds_RGB1, NUM_LEDS_RGB1, flashingSpeed);
-        rgb_fadeOut(leds_RGB2, NUM_LEDS_RGB2, flashingSpeed);
-        rgb_fadeOut(leds_RGB3, NUM_LEDS_RGB3, flashingSpeed);
-        if (rgb_fadeOut(leds_RGB4, NUM_LEDS_RGB4, flashingSpeed))
+        if (rgb_fadeOut(leds_RGB0, NUM_LEDS_RGB0, flashingSpeed))
         {
             startTime_mode3 = millis();
             mode3State = MODE_3_END;
         }
         return false;
     case MODE_3_END:
-        rgbOff(leds_RGB1, NUM_LEDS_RGB1);
-        rgbOff(leds_RGB2, NUM_LEDS_RGB2);
-        rgbOff(leds_RGB3, NUM_LEDS_RGB3);
-        rgbOff(leds_RGB4, NUM_LEDS_RGB4);
-        pwmOffAll(pwmBuffer);
+        rgbOff(leds_RGB0, NUM_LEDS_RGB0);
+        pwmOffAll();
         led_OFF(LED_PIN_16);
         return millis() - startTime_mode3 >= 10000;
     default:

@@ -157,16 +157,14 @@ static GunfireInstance gunfireInstance = {
 
 bool storyMode_1(uint8_t slaveId)
 {
+
     switch (mode1State)
     {
     case MODE_1_INIT:
         startTime_mode1 = millis();
 
-        rgbOff(leds_RGB1, NUM_LEDS_RGB1);
-        rgbOff(leds_RGB2, NUM_LEDS_RGB2);
-        rgbOff(leds_RGB3, NUM_LEDS_RGB3);
-        rgbOff(leds_RGB4, NUM_LEDS_RGB4);
-        pwmOffAll(pwmBuffer);
+        rgbOff(leds_RGB0, NUM_LEDS_RGB0);
+        pwmOffAll();
         led_OFF(LED_PIN_16);
         flashIdleInterval = 1000;
         currentBrightness = 0;
@@ -236,176 +234,143 @@ bool storyMode_1(uint8_t slaveId)
         case 4:
         {
             //0x50 長著
-            PWM_UPDATE_SAFE({
+
                 for (int i = 0; i <= 11; i++)
                 {
-                    pwmBuffer[PWM0][i] = pwmOn(120);
+                    pwmOn(PWM0, i, 120);
                 }
-            });
+
             //0x50 13-16 交替
-            std::array<uint16_t, 2> flashOutputPwm0 = pwmFlashAlternative(80, 20, lastUpdateArr_pwm0[PWM_CHANNEL_13], isOnArr_pwm0[PWM_CHANNEL_13]);
-            PWM_UPDATE_SAFE({
-                pwmBuffer[PWM0][PWM_CHANNEL_12] = flashOutputPwm0[0];
-                pwmBuffer[PWM0][PWM_CHANNEL_13] = flashOutputPwm0[1];
-                pwmBuffer[PWM0][PWM_CHANNEL_14] = flashOutputPwm0[0];
-                pwmBuffer[PWM0][PWM_CHANNEL_15] = flashOutputPwm0[1];
-            });
+
+                pwmFlashAlternative(PWM0, PWM_CHANNEL_12, PWM_CHANNEL_13, 80, 20, lastUpdateArr_pwm0[PWM_CHANNEL_13], isOnArr_pwm0[PWM_CHANNEL_13]);
+                pwmFlashAlternative(PWM0, PWM_CHANNEL_14, PWM_CHANNEL_15, 80, 20, lastUpdateArr_pwm0[PWM_CHANNEL_13], isOnArr_pwm0[PWM_CHANNEL_13]);
+
 
             // 0x51 pwm led 1-6 推進器
-            PWM_UPDATE_SAFE({
+
                 for (int i = 0; i < 6; i++)
                 {
-                    pwmBuffer[PWM1][i] = pwmBreathFlash(100, 100, breath_brightness_pwm1[i], isOnArr_pwm1[i], lastUpdateArr_pwm1[i]);
+                    pwmBreathFlash(PWM1, i, 100, 100, breath_brightness_pwm1[i], isOnArr_pwm1[i], lastUpdateArr_pwm1[i]);
                 }
-            });
-            
+
+
             // 0x51 7-11 呼吸燈
-            PWM_UPDATE_SAFE({
+
                 for (int i = 6; i < 12; i++)
                 {
-                    pwmBuffer[PWM1][i] = pwmBreath(20, 0, 160);
+                    pwmBreath(PWM1, i, 20, 0, 160);
                 }
-            });
-            
+
+
             // 0x51 12-16 散氣口
-            PWM_UPDATE_SAFE({
+
                 for (int i = 12; i < 16; i++)
                 {
                     pwmVent(PWM1, i, 1, 2, 3, 950, 1200, 1300, 1350, 150000, 50000); //vent
-                    pwmBuffer[PWM1][i] = pwmStaging[PWM1][i];
                 }
-            });
+
 
             // 0x52 1-8 交替閃
-            std::array<uint16_t, 2> flashOutputPwm2 = pwmFlashAlternative(80, 20, lastUpdateArr_pwm2[PWM_CHANNEL_1], isOnArr_pwm2[PWM_CHANNEL_1]);
-            PWM_UPDATE_SAFE({
-                pwmBuffer[PWM2][PWM_CHANNEL_0] = flashOutputPwm2[0];
-                pwmBuffer[PWM2][PWM_CHANNEL_1] = flashOutputPwm2[1];
-                pwmBuffer[PWM2][PWM_CHANNEL_2] = flashOutputPwm2[0];
-                pwmBuffer[PWM2][PWM_CHANNEL_3] = flashOutputPwm2[1];
-                pwmBuffer[PWM2][PWM_CHANNEL_4] = flashOutputPwm2[0];
-                pwmBuffer[PWM2][PWM_CHANNEL_5] = flashOutputPwm2[1];
-                pwmBuffer[PWM2][PWM_CHANNEL_6] = flashOutputPwm2[0];
-                pwmBuffer[PWM2][PWM_CHANNEL_7] = flashOutputPwm2[1];
-            });
+
+                pwmFlashAlternative(PWM2, PWM_CHANNEL_0, PWM_CHANNEL_1, 80, 20, lastUpdateArr_pwm2[PWM_CHANNEL_1], isOnArr_pwm2[PWM_CHANNEL_1]);
+                pwmFlashAlternative(PWM2, PWM_CHANNEL_2, PWM_CHANNEL_3, 80, 20, lastUpdateArr_pwm2[PWM_CHANNEL_1], isOnArr_pwm2[PWM_CHANNEL_1]);
+                pwmFlashAlternative(PWM2, PWM_CHANNEL_4, PWM_CHANNEL_5, 80, 20, lastUpdateArr_pwm2[PWM_CHANNEL_1], isOnArr_pwm2[PWM_CHANNEL_1]);
+                pwmFlashAlternative(PWM2, PWM_CHANNEL_6, PWM_CHANNEL_7, 80, 20, lastUpdateArr_pwm2[PWM_CHANNEL_1], isOnArr_pwm2[PWM_CHANNEL_1]);
+
 
             //0x52 9-12 長著
-            PWM_UPDATE_SAFE({
+
                 for (int i = 8; i <= 11; i++)
                 {
-                    pwmBuffer[PWM2][i] = pwmOn(120);
+                    pwmOn(PWM2, i, 120);
                 }
-            });
+
 
             //0x52 13-15 呼吸燈
-            PWM_UPDATE_SAFE({
+
                 for (int i = 12; i <= 14; i++)
                 {
-                    pwmBuffer[PWM2][i] = pwmBreath(20, 0, 160);
+                    pwmBreath(PWM2, i, 20, 0, 160);
                 }
-            });
+
 
             // 0x52 16 散氣
-            PWM_UPDATE_SAFE({
+
                 pwmVent(PWM2, 15, 1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
-                pwmBuffer[PWM2][15] = pwmStaging[PWM2][15];
-            });
+
 
             //0x59 1-12 長著
-            PWM_UPDATE_SAFE({
+
                 for (int i = 0; i <= 11; i++)
                 {
-                    pwmBuffer[PWM3][i] = pwmOn(120);
+                    pwmOn(PWM3, i, 120);
                 }
-            });
+
             //0x59 13-16 交替
-            std::array<uint16_t, 2> flashOutputPwm3 = pwmFlashAlternative(80, 20, lastUpdateArr_pwm3[PWM_CHANNEL_13], isOnArr_pwm3[PWM_CHANNEL_13]);
-            PWM_UPDATE_SAFE({
-                pwmBuffer[PWM3][PWM_CHANNEL_12] = flashOutputPwm3[0];
-                pwmBuffer[PWM3][PWM_CHANNEL_13] = flashOutputPwm3[1];
-                pwmBuffer[PWM3][PWM_CHANNEL_14] = flashOutputPwm3[0];
-                pwmBuffer[PWM3][PWM_CHANNEL_15] = flashOutputPwm3[1];
-            });
+
+                pwmFlashAlternative(PWM3, PWM_CHANNEL_12, PWM_CHANNEL_13, 80, 20, lastUpdateArr_pwm3[PWM_CHANNEL_13], isOnArr_pwm3[PWM_CHANNEL_13]);
+                pwmFlashAlternative(PWM3, PWM_CHANNEL_14, PWM_CHANNEL_15, 80, 20, lastUpdateArr_pwm3[PWM_CHANNEL_13], isOnArr_pwm3[PWM_CHANNEL_13]);
+
 
             // 0x60 pwm led 1-6 推進器
-            PWM_UPDATE_SAFE({
+
                 for (int i = 0; i < 6; i++)
                 {
-                    pwmBuffer[PWM4][i] = pwmBreathFlash(100, 100, breath_brightness_pwm4[i], isOnArr_pwm4[i], lastUpdateArr_pwm4[i]);
+                    pwmBreathFlash(PWM4, i, 100, 100, breath_brightness_pwm4[i], isOnArr_pwm4[i], lastUpdateArr_pwm4[i]);
                 }
-            });
-            
+
+
             // 0x60 7-11 呼吸燈
-            PWM_UPDATE_SAFE({
+
                 for (int i = 6; i < 12; i++)
                 {
-                    pwmBuffer[PWM4][i] = pwmBreath(20, 0, 160);
+                    pwmBreath(PWM4, i, 20, 0, 160);
                 }
-            });
-            
+
+
             // 0x60 12-16 散氣口
-            PWM_UPDATE_SAFE({
+
                 for (int i = 12; i < 16; i++)
                 {
                     pwmVent(PWM4, i, 1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
-                    pwmBuffer[PWM4][i] = pwmStaging[PWM4][i];
                 }
-            });
+
 
             // 0x61 1-8 交替閃
-            std::array<uint16_t, 2> flashOutputPwm5 = pwmFlashAlternative(80, 20, lastUpdateArr_pwm5[PWM_CHANNEL_1], isOnArr_pwm5[PWM_CHANNEL_1]);
-            PWM_UPDATE_SAFE({
-                pwmBuffer[PWM5][PWM_CHANNEL_0] = flashOutputPwm5[0];
-                pwmBuffer[PWM5][PWM_CHANNEL_1] = flashOutputPwm5[1];
-                pwmBuffer[PWM5][PWM_CHANNEL_2] = flashOutputPwm5[0];
-                pwmBuffer[PWM5][PWM_CHANNEL_3] = flashOutputPwm5[1];
-                pwmBuffer[PWM5][PWM_CHANNEL_4] = flashOutputPwm5[0];
-                pwmBuffer[PWM5][PWM_CHANNEL_5] = flashOutputPwm5[1];
-                pwmBuffer[PWM5][PWM_CHANNEL_6] = flashOutputPwm5[0];
-                pwmBuffer[PWM5][PWM_CHANNEL_7] = flashOutputPwm5[1];
-            });
+
+                pwmFlashAlternative(PWM5, PWM_CHANNEL_0, PWM_CHANNEL_1, 80, 20, lastUpdateArr_pwm5[PWM_CHANNEL_1], isOnArr_pwm5[PWM_CHANNEL_1]);
+                pwmFlashAlternative(PWM5, PWM_CHANNEL_2, PWM_CHANNEL_3, 80, 20, lastUpdateArr_pwm5[PWM_CHANNEL_1], isOnArr_pwm5[PWM_CHANNEL_1]);
+                pwmFlashAlternative(PWM5, PWM_CHANNEL_4, PWM_CHANNEL_5, 80, 20, lastUpdateArr_pwm5[PWM_CHANNEL_1], isOnArr_pwm5[PWM_CHANNEL_1]);
+                pwmFlashAlternative(PWM5, PWM_CHANNEL_6, PWM_CHANNEL_7, 80, 20, lastUpdateArr_pwm5[PWM_CHANNEL_1], isOnArr_pwm5[PWM_CHANNEL_1]);
+
 
             //0x61 9-12 長著
-            PWM_UPDATE_SAFE({
-                for (int i = 8; i <= 11; i++)
-                {
-                    pwmBuffer[PWM5][i] = pwmOn(120);
-                }
-            });
+            for (int i = 8; i <= 11; i++)
+            {
+                pwmOn(PWM5, i, 120);
+            }
 
             //0x61 13-15 呼吸燈
-            PWM_UPDATE_SAFE({
-                for (int i = 12; i <= 14; i++)
-                {
-                    pwmBuffer[PWM5][i] = pwmBreath(20, 0, 160);
-                }
-            });
+            for (int i = 12; i <= 14; i++)
+            {
+                pwmBreath(PWM5, i, 20, 0, 160);
+            }
 
             // 0x61 16 散氣
-            PWM_UPDATE_SAFE({
-                pwmVent(PWM5, 15, 1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
-                pwmBuffer[PWM5][15] = pwmStaging[PWM5][15];
-            });
+            pwmVent(PWM5, 15, 1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
 
             // 0x6B 1-4 長著
-            PWM_UPDATE_SAFE({
-                for (int i = 0; i<=3; i++){
-                    pwmBuffer[PWM6][i] = pwmOn(120);
-                }
-            });
+            for (int i = 0; i<=3; i++){
+                pwmOn(PWM6, i, 120);
+            }
             // // 0x6B 5 4拍著1,2拍
-            PWM_UPDATE_SAFE({
-                pwmBuffer[PWM6][PWM_CHANNEL_4] = pwmFlashByBeat(255, 120, lastToggle_pwm6, beatCount_pwm6);
-            });  
+            pwmFlashByBeat(PWM6, PWM_CHANNEL_4, 255, 120, lastToggle_pwm6, beatCount_pwm6);
 
             // 0x6B 6-13 散氣口
-            PWM_UPDATE_SAFE({
-                for (int i = 5; i <=12; i++)
-                {
-                    pwmVent(PWM6, i, 1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
-                    pwmBuffer[PWM6][i] = pwmStaging[PWM6][i];
-                }
-            });
+            for (int i = 5; i <=12; i++)
+            {
+                pwmVent(PWM6, i, 1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
+            }
 
             break;
         }
@@ -416,116 +381,77 @@ bool storyMode_1(uint8_t slaveId)
         case 5:
         {
             // 0x62 1-16 長著
-            PWM_UPDATE_SAFE({
-                for (int i = 0; i<=15; i++){
-                    pwmBuffer[PWM0][i] = pwmOn(120);
-                }
-            });
+            for (int i = 0; i<=15; i++){
+                pwmOn(PWM0, i, 120);
+            }
 
             //0x63 1-5 長著
-            PWM_UPDATE_SAFE({
-                for (int i = 0; i<=4; i++){
-                    pwmBuffer[PWM1][i] = pwmOn(120);
-                }
-            });
+            for (int i = 0; i<=4; i++){
+                pwmOn(PWM1, i, 120);
+            }
 
             // 0x63 6-9 交替閃
-            std::array<uint16_t, 2> flashOutputPwm1 = pwmFlashAlternative(80, 20, lastUpdateArr_pwm1[PWM_CHANNEL_5], isOnArr_pwm1[PWM_CHANNEL_5]);
-            PWM_UPDATE_SAFE({
-                pwmBuffer[PWM1][PWM_CHANNEL_5] = flashOutputPwm1[0];
-                pwmBuffer[PWM1][PWM_CHANNEL_6] = flashOutputPwm1[1];
-                pwmBuffer[PWM1][PWM_CHANNEL_7] = flashOutputPwm1[0];
-                pwmBuffer[PWM1][PWM_CHANNEL_8] = flashOutputPwm1[1];
-            });
+            pwmFlashAlternative(PWM1, PWM_CHANNEL_5, PWM_CHANNEL_6, 80, 20, lastUpdateArr_pwm1[PWM_CHANNEL_5], isOnArr_pwm1[PWM_CHANNEL_5]);
+            pwmFlashAlternative(PWM1, PWM_CHANNEL_7, PWM_CHANNEL_8, 80, 20, lastUpdateArr_pwm1[PWM_CHANNEL_5], isOnArr_pwm1[PWM_CHANNEL_5]);
 
             // 0x63 10-16 光暗
-            PWM_UPDATE_SAFE({
-                for (int i = 9; i <=15; i++)
-                {
-                    pwmBuffer[PWM1][i] = pwmBreath(20, 20, 180);
-                }
-            });
+            for (int i = 9; i <=15; i++)
+            {
+                pwmBreath(PWM1, i, 20, 20, 180);
+            }
 
             // 0x67 1-11 散氣口
-            PWM_UPDATE_SAFE({
-                for (int i = 0; i <=10; i++)
-                {
-                    pwmVent(PWM2, i, 1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
-                    pwmBuffer[PWM2][i] = pwmStaging[PWM2][i];
-                }
-            });
+            for (int i = 0; i <=10; i++)
+            {
+                pwmVent(PWM2, i, 1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
+            }
 
             // 0x67 12-13 推進器
-            PWM_UPDATE_SAFE({
-                for (int i = 11; i <=12; i++)
-                {
-                    pwmBuffer[PWM2][i] = pwmBreathFlash(100, 100, breath_brightness_pwm0[i], isOnArr_pwm0[i], lastUpdateArr_pwm0[i]);
-                }
-            });
+            for (int i = 11; i <=12; i++)
+            {
+                pwmBreathFlash(PWM2, i, 100, 100, breath_brightness_pwm0[i], isOnArr_pwm0[i], lastUpdateArr_pwm0[i]);
+            }
 
             // 0x67 14-16 交替
-            std::array<uint16_t, 2> flashOutputPwm2 = pwmFlashAlternative(80, 20, lastUpdateArr_pwm1[PWM_CHANNEL_5], isOnArr_pwm1[PWM_CHANNEL_5]);
-            PWM_UPDATE_SAFE({
-                pwmBuffer[PWM2][PWM_CHANNEL_13] = flashOutputPwm2[0];
-                pwmBuffer[PWM2][PWM_CHANNEL_14] = flashOutputPwm2[1];
-                pwmBuffer[PWM2][PWM_CHANNEL_15] = flashOutputPwm2[0];
-            });
+            pwmFlashAlternative(PWM2, PWM_CHANNEL_13, PWM_CHANNEL_14, 80, 20, lastUpdateArr_pwm1[PWM_CHANNEL_5], isOnArr_pwm1[PWM_CHANNEL_5]);
+            // mirror channel 13 pattern to 15 by pairing with 14 again
+            pwmFlashAlternative(PWM2, PWM_CHANNEL_15, PWM_CHANNEL_14, 80, 20, lastUpdateArr_pwm1[PWM_CHANNEL_5], isOnArr_pwm1[PWM_CHANNEL_5]);
 
             // 0x6D 1-16 長著
-            PWM_UPDATE_SAFE({
-                for (int i = 0; i<=15; i++){
-                    pwmBuffer[PWM3][i] = pwmOn(120);
-                }
-            });
+            for (int i = 0; i<=15; i++){
+                pwmOn(PWM3, i, 120);
+            }
 
             //0x5D 1-5 長著
-            PWM_UPDATE_SAFE({
-                for (int i = 0; i<=4; i++){
-                    pwmBuffer[PWM4][i] = pwmOn(120);
-                }
-            });
+            for (int i = 0; i<=4; i++){
+                pwmOn(PWM4, i, 120);
+            }
 
             // 0x5D 6-9 交替閃
-            std::array<uint16_t, 2> flashOutputPwm4 = pwmFlashAlternative(80, 20, lastUpdateArr_pwm4[PWM_CHANNEL_5], isOnArr_pwm4[PWM_CHANNEL_5]);
-            PWM_UPDATE_SAFE({
-                pwmBuffer[PWM4][PWM_CHANNEL_5] = flashOutputPwm1[0];
-                pwmBuffer[PWM4][PWM_CHANNEL_6] = flashOutputPwm1[1];
-                pwmBuffer[PWM4][PWM_CHANNEL_7] = flashOutputPwm1[0];
-                pwmBuffer[PWM4][PWM_CHANNEL_8] = flashOutputPwm1[1];
-            });
+            pwmFlashAlternative(PWM4, PWM_CHANNEL_5, PWM_CHANNEL_6, 80, 20, lastUpdateArr_pwm4[PWM_CHANNEL_5], isOnArr_pwm4[PWM_CHANNEL_5]);
+            pwmFlashAlternative(PWM4, PWM_CHANNEL_7, PWM_CHANNEL_8, 80, 20, lastUpdateArr_pwm4[PWM_CHANNEL_5], isOnArr_pwm4[PWM_CHANNEL_5]);
 
             // 0x5D 10-16 光暗
-            PWM_UPDATE_SAFE({
-                for (int i = 9; i <=15; i++)
-                {
-                    pwmBuffer[PWM4][i] = pwmBreath(20, 20, 180);
-                }
-            });
+            for (int i = 9; i <=15; i++)
+            {
+                pwmBreath(PWM4, i, 20, 20, 180);
+            }
 
             // 0x5E 1-11 散氣口
-            PWM_UPDATE_SAFE({
-                for (int i = 0; i <=10; i++)
-                {
-                    pwmVent(PWM5, i, 1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
-                    pwmBuffer[PWM5][i] = pwmStaging[PWM5][i];
-                }
-            });
+            for (int i = 0; i <=10; i++)
+            {
+                pwmVent(PWM5, i, 1, 2, 3, 150, 200, 300, 350, 150000, 50000); //vent
+            }
 
             // 0x5E 12-13 推進器
-            PWM_UPDATE_SAFE({
-                for (int i = 11; i <=12; i++)
-                {
-                    pwmBuffer[PWM5][i] = pwmBreathFlash(100, 100, breath_brightness_pwm5[i], isOnArr_pwm5[i], lastUpdateArr_pwm5[i]);
-                }
-            });
+            for (int i = 11; i <=12; i++)
+            {
+                pwmBreathFlash(PWM5, i, 100, 100, breath_brightness_pwm5[i], isOnArr_pwm5[i], lastUpdateArr_pwm5[i]);
+            }
 
             // 0x5E 14-16 交替
-            std::array<uint16_t, 2> flashOutputPwm5 = pwmFlashAlternative(80, 20, lastUpdateArr_pwm1[PWM_CHANNEL_5], isOnArr_pwm1[PWM_CHANNEL_5]);
-            PWM_UPDATE_SAFE({
-                pwmBuffer[PWM5][PWM_CHANNEL_13] = flashOutputPwm5[0];
-                pwmBuffer[PWM5][PWM_CHANNEL_14] = flashOutputPwm5[1];
-                pwmBuffer[PWM5][PWM_CHANNEL_15] = flashOutputPwm5[0];
-            });
+            pwmFlashAlternative(PWM5, PWM_CHANNEL_13, PWM_CHANNEL_14, 80, 20, lastUpdateArr_pwm1[PWM_CHANNEL_5], isOnArr_pwm1[PWM_CHANNEL_5]);
+            pwmFlashAlternative(PWM5, PWM_CHANNEL_15, PWM_CHANNEL_14, 80, 20, lastUpdateArr_pwm1[PWM_CHANNEL_5], isOnArr_pwm1[PWM_CHANNEL_5]);
             break;
         }
         default:
@@ -533,12 +459,9 @@ bool storyMode_1(uint8_t slaveId)
         }
         // led_sequence_beatsin_fade(ledPins, numPins, freq, brightnessLow, brightnessHigh);
 
-        pwmSequenceBeatSinFade(pwmBuffer, PWM1, pwmChannelArr, num_pwmChannel, freq, 10, 800);
+        pwmSequenceBeatSinFade(PWM1, pwmChannelArr, num_pwmChannel, freq, 10, 800);
         // pwm_flash_alternative(pwmArray[0], PWM_LED_PIN_0, PWM_LED_PIN_1, minBrightness, 100, lastUpdate_pwm0, isOn0);
-        gradientDynamicRainbow(leds_RGB1, NUM_LEDS_RGB1, &startHue_rainbow1, 12);
-        gradientDynamicRainbow(leds_RGB2, NUM_LEDS_RGB2, &startHue_rainbow2, 12);
-        gradientDynamicRainbow(leds_RGB3, NUM_LEDS_RGB3, &startHue_rainbow3, 12);
-        gradientDynamicRainbow(leds_RGB4, NUM_LEDS_RGB4, &startHue_rainbow4, 12);
+        gradientDynamicRainbow(leds_RGB0, NUM_LEDS_RGB0, &startHue_rainbow1, 12);
         if (millis() - startTime_mode1 >= 15000) // after
         {
             maxBrightness = 150;
@@ -550,26 +473,19 @@ bool storyMode_1(uint8_t slaveId)
         }
         return false;
     case MODE_1_FADEOUT:
-        pwmFadeOutAll(pwmBuffer, flashingSpeed, currentBrightness_pwm);
+        pwmFadeOutAll(flashingSpeed, currentBrightness_pwm);
         led_fadeOut(LED_PIN_16, flashingSpeed, currentBrightness_eye);
-        rgb_fadeOut(leds_RGB1, NUM_LEDS_RGB1, flashingSpeed);
-        rgb_fadeOut(leds_RGB2, NUM_LEDS_RGB2, flashingSpeed);
-        rgb_fadeOut(leds_RGB3, NUM_LEDS_RGB3, flashingSpeed);
-        if (rgb_fadeOut(leds_RGB4, NUM_LEDS_RGB4, flashingSpeed))
+        if (rgb_fadeOut(leds_RGB0, NUM_LEDS_RGB0, flashingSpeed))
         {
             startTime_mode1 = millis();
             mode1State = MODE_1_END;
         }
         return false;
     case MODE_1_END:
-        rgbOff(leds_RGB1, NUM_LEDS_RGB1);
-        rgbOff(leds_RGB2, NUM_LEDS_RGB2);
-        rgbOff(leds_RGB3, NUM_LEDS_RGB3);
-        rgbOff(leds_RGB4, NUM_LEDS_RGB4);
-        pwmOffAll(pwmBuffer);
+        rgbOff(leds_RGB0, NUM_LEDS_RGB0);
+        pwmOffAll();
         led_OFF(LED_PIN_16);
         return true;
-        // return millis() - startTime_mode1 >= 10000;
     default:
         return false;
     }

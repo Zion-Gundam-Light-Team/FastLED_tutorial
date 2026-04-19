@@ -149,16 +149,6 @@ static unsigned long swipeonLastUpdate3 = 0;
 static unsigned long swipeonLastUpdate4 = 0;
 static uint16_t breathDelay = 1000;
 
-//-------亮點亂閃params------//
-static bool selected_RGB1[NUM_LEDS_RGB1] = {false};
-static bool selected_RGB2[NUM_LEDS_RGB2] = {false};
-static bool selected_RGB3[NUM_LEDS_RGB3] = {false};
-static bool selected_RGB4[NUM_LEDS_RGB4] = {false};
-static unsigned long gapTime = 10000;
-static bool inGap1 = false;
-static bool inGap2 = false;
-static bool inGap3 = false;
-static bool inGap4 = false;
 
 bool storyMode_2(uint8_t slaveId)
 {
@@ -167,11 +157,8 @@ bool storyMode_2(uint8_t slaveId)
     case MODE_2_INIT:
         startTime_mode2 = millis();
 
-        rgbOff(leds_RGB1, NUM_LEDS_RGB1);
-        rgbOff(leds_RGB2, NUM_LEDS_RGB2);
-        rgbOff(leds_RGB3, NUM_LEDS_RGB3);
-        rgbOff(leds_RGB4, NUM_LEDS_RGB4);
-        pwmOffAll(pwmBuffer);
+        rgbOff(leds_RGB0, NUM_LEDS_RGB0);
+        pwmOffAll();
         currentIndex_breath3 = 0;
         swipeonLastUpdate3 = 0;
         led_OFF(LED_PIN_16);
@@ -219,11 +206,8 @@ bool storyMode_2(uint8_t slaveId)
         if (slaveId == 1)
             led_ON(LED_PIN_16, maxBrightness_eye);
         
-        pwmOnAll(pwmBuffer, 255);
-        gradientDynamicRainbow(leds_RGB1, NUM_LEDS_RGB1, &startHue_rainbow1, 8);
-        gradientDynamicRainbow(leds_RGB2, NUM_LEDS_RGB2, &startHue_rainbow2, 8);
-        gradientDynamicRainbow(leds_RGB3, NUM_LEDS_RGB3, &startHue_rainbow3, 8);
-        gradientDynamicRainbow(leds_RGB4, NUM_LEDS_RGB4, &startHue_rainbow4, 8);
+        pwmOnAll(255);
+        gradientDynamicRainbow(leds_RGB0, NUM_LEDS_RGB0, &startHue_rainbow1, 8);
         // turbine(leds_RGB2, NUM_LEDS_RGB2, &turbineInstance1);
         // rgb_breath(leds_RGB3, NUM_LEDS_RGB3, &currentIndex_breath3, CRGB(255, 52, 0), 140000, 10, &swipeonLastUpdate3, breathDelay);
         // footplate(leds_RGB4, NUM_LEDS_RGB4, &footplateInstance1);
@@ -239,23 +223,17 @@ bool storyMode_2(uint8_t slaveId)
         }
         return false;
     case MODE_2_FADEOUT:
-        pwmFadeOutAll(pwmBuffer, flashingSpeed, currentBrightness_pwm);
+        pwmFadeOutAll(flashingSpeed, currentBrightness_pwm);
         led_fadeOut(LED_PIN_16, flashingSpeed, currentBrightness_eye);
-        rgb_fadeOut(leds_RGB1, NUM_LEDS_RGB1, flashingSpeed);
-        rgb_fadeOut(leds_RGB2, NUM_LEDS_RGB2, flashingSpeed);
-        rgb_fadeOut(leds_RGB3, NUM_LEDS_RGB3, flashingSpeed);
-        if (rgb_fadeOut(leds_RGB4, NUM_LEDS_RGB4, flashingSpeed))
+        if (rgb_fadeOut(leds_RGB0, NUM_LEDS_RGB0, flashingSpeed))
         {
             startTime_mode2 = millis();
             mode2State = MODE_2_END;
         }
         return false;
     case MODE_2_END:
-        rgbOff(leds_RGB1, NUM_LEDS_RGB1);
-        rgbOff(leds_RGB2, NUM_LEDS_RGB2);
-        rgbOff(leds_RGB3, NUM_LEDS_RGB3);
-        rgbOff(leds_RGB4, NUM_LEDS_RGB4);
-        pwmOffAll(pwmBuffer);
+        rgbOff(leds_RGB0, NUM_LEDS_RGB0);
+        pwmOffAll();
         led_OFF(LED_PIN_16);
         return millis() - startTime_mode2 >= 10000;
     default:

@@ -4,10 +4,6 @@
 char buffer[1024];
 
 CRGB leds_RGB0[NUM_LEDS_RGB0];
-CRGB leds_RGB1[NUM_LEDS_RGB1];
-CRGB leds_RGB2[NUM_LEDS_RGB2];
-CRGB leds_RGB3[NUM_LEDS_RGB3];
-CRGB leds_RGB4[NUM_LEDS_RGB4];
 
 CRGBSet strip1(leds_RGB0, 14, 0);   // REVERSE
 CRGBSet strip2(leds_RGB0, 15, 29);

@@ -50,10 +50,6 @@
 
 //------------RGB LED PINS------------//
 #define LED_PIN_RGB0 12
-#define LED_PIN_RGB1 1
-#define LED_PIN_RGB2 2
-#define LED_PIN_RGB3 3
-#define LED_PIN_RGB4 4
 
 //------------LED PINS------------//
 //GPIO5 & 6 is reserved for PWM protocol channels
@@ -99,18 +95,6 @@
 #ifndef NUM_LEDS_RGB0
 #define NUM_LEDS_RGB0 200 // 不要修改這裡！ 請到platformio_local.ini去定義RGB燈珠數量!
 #endif
-#ifndef NUM_LEDS_RGB1
-#define NUM_LEDS_RGB1 10 // 不要修改這裡！ 請到platformio_local.ini去定義RGB燈珠數量!
-#endif
-#ifndef NUM_LEDS_RGB2
-#define NUM_LEDS_RGB2 10 // 不要修改這裡！ 請到platformio_local.ini去定義RGB燈珠數量!
-#endif
-#ifndef NUM_LEDS_RGB3
-#define NUM_LEDS_RGB3 10 // 不要修改這裡！ 請到platformio_local.ini去定義RGB燈珠數量!
-#endif
-#ifndef NUM_LEDS_RGB4
-#define NUM_LEDS_RGB4 10 // 不要修改這裡！ 請到platformio_local.ini去定義RGB燈珠數量!
-#endif
 
 #define NUM_LEDS_RGB0_STRIP1 15
 #define NUM_LEDS_RGB0_STRIP2 15
@@ -120,10 +104,6 @@
 #define MAX_LEDS 180  // Or whatever your maximum LED count is
 
 extern CRGB leds_RGB0[NUM_LEDS_RGB0];
-extern CRGB leds_RGB1[NUM_LEDS_RGB1];
-extern CRGB leds_RGB2[NUM_LEDS_RGB2];
-extern CRGB leds_RGB3[NUM_LEDS_RGB3];
-extern CRGB leds_RGB4[NUM_LEDS_RGB4];
 
 extern CRGBSet strip1, strip2, strip3, strip4;
 
